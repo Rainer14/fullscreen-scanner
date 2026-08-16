@@ -127,6 +127,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
+  function getPreferredCameraId(cameras) {
+    if (!cameras || !cameras.length) return null;
+
+    const preferredOrder = [
+      'rear', 'back', 'trasera', 'environment', 'user', 'front', 'frontal', 'selfie'
+    ];
+
+    const ranked = [...cameras].sort((a, b) => {
+      const aLabel = (a.label || '').toLowerCase();
+      const bLabel = (b.label || '').toLowerCase();
+      const aScore = preferredOrder.findIndex((token) => aLabel.includes(token));
+      const bScore = preferredOrder.findIndex((token) => bLabel.includes(token));
+
+      const safeA = aScore === -1 ? preferredOrder.length : aScore;
+      const safeB = bScore === -1 ? preferredOrder.length : bScore;
+      return safeA - safeB;
+    });
+
+    return ranked[0]?.id || cameras[0].id;
+  }
+
   function setReaderVisible(visible) {
     readerDiv.classList.toggle("scanner-active", visible);
 
@@ -192,6 +213,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Cargar la lista de cámaras al iniciar
   try {
     cameraList = (await Html5Qrcode.getCameras()) || [];
+    currentCameraId = getPreferredCameraId(cameraList);
     btnStart.disabled = cameraList.length === 0;
     if (cameraList.length === 0) {
       // resultContainer.innerHTML = "<span>No se encontraron cámaras disponibles.</span>";
@@ -267,6 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
           await html5QrCode.stop();
           currentCameraId = nextCamera.id;
+
           await html5QrCode.start(
             nextCamera.id,
             { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -282,21 +305,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Error al enviar el QR');
 
-            //     resultContainer.innerHTML = `
-            //       <p style="color: #4ade80; margin: 0 0 5px 0;"><strong>¡Código Detectado!</strong></p>
-            //       <span>${data.result.text}</span>
-            //       <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #94a3b8;">Enviado a la API: ${new Date(data.result.timestamp).toLocaleString()}</p>
-            //     `;
               } catch (error) {
                 console.log('Error al enviar el QR:', error);
-            //     resultContainer.innerHTML = `
-            //       <p style="color: #fca5a5; margin: 0 0 5px 0;"><strong>Error</strong></p>
-            //       <span>${error.message}</span>
-            //     `;
               }
             },
             () => {}
           );
+
+          setReaderVisible(true);
+          addFallbackCloseButton();
+          addCameraSwitchButton();
         } catch (err) {
           console.error('Error al cambiar cámara:', err);
         }
@@ -310,7 +328,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnStart.addEventListener("click", () => {
     if (!cameraList.length) return;
 
-    const selectedCameraId = currentCameraId || cameraList[0].id;
+    const selectedCameraId = currentCameraId || getPreferredCameraId(cameraList) || cameraList[0].id;
     const config = {
       fps: 10,
       qrbox: { width: 250, height: 250 }
