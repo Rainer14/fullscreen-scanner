@@ -161,6 +161,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     stopScannerAndReset();
   }
 
+  function handleDetectedQr(decodedText) {
+    if (barcodeInput) {
+      barcodeInput.value = decodedText;
+      barcodeInput.focus();
+    }
+
+    if (flashcard) {
+      flashcard.classList.add('flipped');
+    }
+
+    if (cameraActive) {
+      exitFullscreenFlow();
+      stopScannerAndReset();
+    }
+  }
+
   try {
     const response = await fetch('/api/health');
     const data = await response.json();
@@ -234,15 +250,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     closeBtn.style.display = "block";
   }
 
-  function onScanSuccess (decodedText) {
-    barcodeInput.value = decodedText
-    // setScannerStatus(`Código leído: ${decodedText}`)
-    if (cameraActive) {
-       exitFullscreenFlow();
-       stopScannerAndReset();
-    }
-  }
-
   function addCameraSwitchButton() {
     let switchBtn = document.getElementById('btn-change-camera');
     if (!switchBtn) {
@@ -264,6 +271,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             nextCamera.id,
             { fps: 10, qrbox: { width: 250, height: 250 } },
             async (decodedText) => {
+              handleDetectedQr(decodedText);
+
               try {
                 const response = await fetch('/api/qr', {
                   method: 'POST',
@@ -311,6 +320,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedCameraId,
       config,
       async (decodedText) => {
+        handleDetectedQr(decodedText);
+
         try {
           const response = await fetch('/api/qr', {
             method: 'POST',
