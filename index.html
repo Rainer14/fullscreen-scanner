@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner QR Inmersivo</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+
+<body>
+
+    <div class="form-container">
+        <form id="product-form" action="#" method="POST">
+            <div class="flashcard" id="product-card">
+                <div class="card-face card-front">
+                    <div class="form-header">
+                        <div>
+                            <h2>Registrar Producto</h2>
+                            <p>Llena los datos del producto. El código de barras se agrega en el reverso.</p>
+                        </div>
+                        <button type="button" id="open-back-btn" class="secondary-btn">Agregar código</button>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="description">Descripción</label>
+                            <input type="text" id="description" name="description"
+                                placeholder="Descripción del producto" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codigo">Código</label>
+                            <input type="text" id="codigo" name="codigo" placeholder="Código interno" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Categoría</label>
+                            <input type="text" id="categoria" name="categoria" placeholder="Categoría">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="detal">Precio Detal</label>
+                            <input type="number" id="detal" name="detal" placeholder="Precio Detal" min="0" step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mayor">Precio Mayor</label>
+                            <input type="number" id="mayor" name="mayor" placeholder="Precio Mayor" min="0" step="0.01">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="marca">Marca</label>
+                            <input type="text" id="marca" name="marca" placeholder="Marca">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="origen">Origen del Producto</label>
+                            <input type="text" id="origen" name="origen" placeholder="Origen">
+                        </div>
+                    </div>
+
+                    <div>
+
+                        <!-- Visor de la cámara -->
+                        <div id="reader"></div>
+
+                        <!-- Resultado -->
+                        <!-- <div id="result" class="result-box"></div> -->
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="btn-start" class="btn primary">Escanear código</button>
+                        <button type="submit" class="submit-btn">Registrar Producto</button>
+                    </div>
+                </div>
+
+                <div class="card-face card-back">
+                    <div class="form-header back-header">
+                        <div>
+                            <h2>Código de Barras</h2>
+                            <p>Ingresa el código manualmente, escanéalo con cámara o sube una imagen.</p>
+                        </div>
+                        <button type="button" id="back-to-front-btn" class="secondary-btn">Volver</button>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="barcode">Código de Barras</label>
+                            <input type="text" id="barcode" name="barcode" placeholder="Código de barras"
+                                autocomplete="off">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="barcode-file">Subir imagen</label>
+                            <input type="file" id="barcode-file" name="barcode-file" accept="image/*">
+                        </div>
+
+                        <div class="form-group full-width preview-group">
+                            <label>Vista previa de imagen</label>
+                            <img id="barcode-preview" alt="Vista previa del código" src="" hidden>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="secondary-btn" id="back-to-front-btn-copy">Volver a datos</button>
+                        <button type="submit" class="submit-btn">Guardar producto</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

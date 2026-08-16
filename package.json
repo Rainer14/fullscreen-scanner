@@ -1,0 +1,16 @@
+{
+  "name": "fullscreen-potente",
+  "version": "1.0.0",
+  "description": "Servidor local para servir la app HTML en localhost",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon --watch . --ext js,html,css server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

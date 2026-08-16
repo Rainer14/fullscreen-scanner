@@ -1,0 +1,497 @@
+/* new styles */
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg-color: #eef2ff;
+    --card-bg: #ffffff;
+    --surface: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-secondary: #475569;
+    --border-color: #cbd5e1;
+    --border-focus: #818cf8;
+    --radius: 14px;
+    --shadow: 0 22px 60px rgba(15, 23, 42, 0.12);
+    --transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    perspective: 1400px;
+}
+
+.flashcard {
+    position: relative;
+    width: 100%;
+    /* Primer cambio */
+    transform-style: preserve-3d; 
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: relative;
+    width: 100%;
+    /* Segundo cambio */
+    padding: 32px;
+    border-radius: calc(var(--radius) + 4px);
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Tercer cambio */
+    overflow: hidden;
+}
+/* Cuarto cambio */
+.flashcard:not(.flipped) .card-back {
+    display: none;
+}
+
+.flashcard.flipped .card-front {
+    display: none;
+}
+/* hasta aqui */
+
+.card-front {
+    background: linear-gradient(150deg, #ffffff 0%, #f0f5ff 100%);
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(150deg, #eef2ff 0%, #ffffff 100%);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.back-header {
+    align-items: center;
+}
+
+.form-header h2 {
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.form-header p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 620px;
+    line-height: 1.6;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* Quinto cambio */
+    min-width: 0;
+}
+/* Sexto cambio */
+input, select, textarea {
+    min-width: 0;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+/* Séptimo cambio */
+.section-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+
+input, select, textarea {
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    background-color: #ffffff;
+    outline: none;
+    transition: var(--transition);
+    width: 100%;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #94a3b8;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+
+/* end new styles */
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn.primary { background-color: #3b82f6; color: white; }
+.btn.danger { background-color: #ef4444; color: white; }
+.btn.secondary { background-color: #64748b; color: white; }
+
+/* Visor base */
+#reader {
+  display: none;
+  width: 100%;
+  min-height: 250px;
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px dashed #334155;
+  position: relative;
+}
+
+#reader.scanner-active {
+  display: block;
+}
+
+.controls.hidden-while-scanning {
+  display: none;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 14px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  word-break: break-all;
+}
+
+/* ===================================================
+   PANTALLA COMPLETA NATIVA (Chrome, Android, Edge, PC)
+====================================================== */
+#reader:fullscreen {
+  display: block !important;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+  background-color: #000;
+}
+
+#reader:fullscreen video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* ===================================================
+   PANTALLA COMPLETA CSS FALLBACK (iOS / Safari iPhone)
+====================================================== */
+#reader.fullscreen-fallback {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: #000 !important;
+}
+
+#reader.fullscreen-fallback video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Botón flotante para salir del modo fallback */
+.btn-close-fallback {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100000;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-close-fallback:hover {
+  transform: translateX(-50%) scale(1.04);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.5);
+}
+
+.btn-change-camera {
+  position: absolute;
+  top: 22px;
+  left: calc(50% - 110px);
+  z-index: 100000;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-change-camera:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.5);
+}
+
+
+/* NEW STYLES */
+
+/* Octavo cambio */
+/* Focus visible for interactive controls */
+.secondary-btn:focus,
+.submit-btn:focus {
+    outline: 3px solid rgba(79, 70, 229, 0.14);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.06);
+}
+/* hasta aqui */
+
+.form-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submit-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 28px;
+    cursor: pointer;
+    min-width: 170px;
+    transition: var(--transition);
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.18);
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}
+
+.secondary-btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.1);
+    border: 1px solid rgba(79, 70, 229, 0.22);
+    border-radius: var(--radius);
+    padding: 14px 22px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.secondary-btn:hover {
+    background-color: rgba(79, 70, 229, 0.15);
+}
+
+.secondary-btn--ghost {
+    background-color: transparent;
+    border-color: rgba(148, 163, 184, 0.35);
+    color: var(--text-main);
+}
+
+
+.preview-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#barcode-preview {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    /* Undécimo cambio */
+    max-height: 40vh;
+    display: block;
+    border-radius: var(--radius);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    object-fit: contain;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 4px;
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 920px) {
+    .form-container {
+        max-width: 720px;
+    }
+
+    .form-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    /* Decimo Segundo cambio */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        grid-auto-columns: 1fr !important;
+        gap: 18px;
+        grid-auto-flow: row;
+    }
+
+    .form-grid > .form-group,
+    .form-grid > .full-width {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .full-width {
+        grid-column: span 1 !important;
+    }
+    /* Hasta aqui */
+    .form-actions {
+        justify-content: stretch;
+    }
+}
+
+@media (max-width: 720px) {
+    body {
+        padding: 16px;
+        /* Decimo tercer cambio */
+        align-items: flex-start;
+    }
+
+    .card-face {
+        padding: 22px;
+    }
+
+    .flashcard {
+        min-height: auto;
+    }
+    /* Hasta aqui */
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .secondary-btn,
+    .submit-btn {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 520px) {
+    .form-grid {
+        gap: 16px;
+    }
+
+    .form-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .form-header p {
+        font-size: 0.9rem;
+    }
+}
