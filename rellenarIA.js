@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () =>   { const form = docum
         resultDiv.textContent = 'Error de conexión al intentar enviar la imagen.';
       });
 
-      xhr.open('POST', 'https://api-image-ai-1.onrender.com/extract');
+      xhr.open('POST', 'https://api-gemini-ru4e.onrender.com/extract');
       xhr.send(formData);
     });
 })
