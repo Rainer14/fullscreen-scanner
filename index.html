@@ -7,6 +7,7 @@
     <title>Escáner QR Inmersivo</title>
 
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="rellenarIA.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 
@@ -21,7 +22,7 @@
                             <h2>Registrar Producto</h2>
                             <p>Llena los datos del producto. El código de barras se agrega en el reverso.</p>
                         </div>
-                        <button type="button" id="open-back-btn" class="secondary-btn">Agregar código</button>
+                        <button type="button" id="open-back-btn" class="secondary-btn">Rellenar con IA</button>
                     </div>
 
                     <div class="form-grid">
@@ -60,6 +61,12 @@
                             <label for="origen">Origen del Producto</label>
                             <input type="text" id="origen" name="origen" placeholder="Origen">
                         </div>
+
+                        <div class="form-group full-width">
+                            <label for="barcode">Código de Barras</label>
+                            <input type="text" id="barcode" name="barcode" placeholder="Código de barras"
+                                autocomplete="off">
+                        </div>
                     </div>
 
                     <div>
@@ -72,10 +79,11 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" id="btn-start" class="btn primary">Escanear código</button>
+                        <button type="button" id="btn-start" class="secondary-btn">Escanear código</button>
                         <button type="submit" class="submit-btn">Registrar Producto</button>
                     </div>
                 </div>
+            </form>
 
                 <div class="card-face card-back">
                     <div class="form-header back-header">
@@ -86,34 +94,64 @@
                         <button type="button" id="back-to-front-btn" class="secondary-btn">Volver</button>
                     </div>
 
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="barcode">Código de Barras</label>
-                            <input type="text" id="barcode" name="barcode" placeholder="Código de barras"
-                                autocomplete="off">
-                        </div>
+                    <!-- New here -->
 
-                        <div class="form-group full-width">
-                            <label for="barcode-file">Subir imagen</label>
-                            <input type="file" id="barcode-file" name="barcode-file" accept="image/*">
-                        </div>
+                    <div class="card">
+                        <h1 class="title">Extractor de Imagen IA</h1>
+                        <p class="subtitle">Sube una imagen para procesar el contenido</p>
 
-                        <div class="form-group full-width preview-group">
-                            <label>Vista previa de imagen</label>
-                            <img id="barcode-preview" alt="Vista previa del código" src="" hidden>
-                        </div>
+                        <form id="uploadForm">
+                            <input type="file" id="imageInput" accept="image/*">
+
+                            <div class="drop-zone" id="dropZone">
+                                <svg class="drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <p class="drop-zone-text">
+                                    <strong>Haz clic para subir</strong> o arrastra y suelta aquí
+                                </p>
+                            </div>
+
+                            <div class="preview-container" id="previewContainer">
+                                <img src="" alt="Vista previa" class="preview-image" id="previewImage">
+                                <button type="button" class="remove-btn" id="removeBtn">&times;</button>
+                            </div>
+
+                            <!-- Contenedor de la barra de progreso -->
+                            <div class="progress-wrapper" id="progressWrapper">
+                                <div class="progress-info">
+                                    <span id="progressStatus">Subiendo...</span>
+                                    <span id="progressPercentage">0%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="submit-btn" id="submitBtn" disabled>Enviar imagen</button>
+                        </form>
+
+                        <div id="result"></div>
                     </div>
+
+
+
+                    <!-- end new -->
+
 
                     <div class="form-actions">
                         <button type="button" class="secondary-btn" id="back-to-front-btn-copy">Volver a datos</button>
-                        <button type="submit" class="submit-btn">Guardar producto</button>
+                        <!-- <button type="submit" class="submit-btn">Guardar producto</button> -->
                     </div>
                 </div>
             </div>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <script src="rellenarIA.js" defer></script>
 </body>
 
 </html>
