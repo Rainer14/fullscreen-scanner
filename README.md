@@ -37,3 +37,22 @@ http://localhost:3000
 - `/` → página principal
 - `/api/health` → estado del servidor
 - `/api/info` → información de la app
+- `/api/qr` → registra un código QR mediante `POST` con `{ "text": "..." }`
+- `/api/qr/latest` → devuelve el último código QR registrado
+
+## Arquitectura
+
+El backend está organizado por responsabilidades dentro de `src/`:
+
+- `config/` configura rutas y entorno.
+- `models/` encapsula la persistencia en `qr-data.json`.
+- `services/` contiene las reglas de negocio del QR.
+- `controllers/` traduce solicitudes HTTP a respuestas.
+- `routes/` declara los endpoints.
+- `app.js` compone Express sin abrir el puerto; `server.js` solo inicia el servidor.
+
+Pruebas:
+
+```bash
+npm test
+```
