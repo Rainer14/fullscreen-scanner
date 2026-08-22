@@ -1,4 +1,4 @@
-export function initImageUploader() {
+export function initImageUploader({ onDataExtracted } = {}) {
   const form = document.getElementById('uploadForm');
   const imageInput = document.getElementById('imageInput');
   const dropZone = document.getElementById('dropZone');
@@ -89,7 +89,9 @@ export function initImageUploader() {
         progressBar.style.backgroundColor = 'var(--success)';
         progressStatus.textContent = 'Completado';
         try {
-          result.textContent = JSON.stringify(JSON.parse(xhr.responseText), null, 2);
+          const responseData = JSON.parse(xhr.responseText);
+          result.textContent = JSON.stringify(responseData, null, 2);
+          onDataExtracted?.(responseData);
         } catch (error) {
           result.textContent = xhr.responseText;
         }

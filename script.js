@@ -1,5 +1,6 @@
 import { initFormController } from './frontend/formController.js';
 import { initImageUploader } from './frontend/imageUploader.js';
+import { fillProductForm } from './frontend/productDataMapper.js';
 import { initQrScanner } from './frontend/qrScanner.js';
 
 const qrScanner = initQrScanner({
@@ -23,4 +24,9 @@ initFormController({
     if (qrScanner.isActive()) await qrScanner.stop();
   }
 });
-initImageUploader();
+initImageUploader({
+  onDataExtracted: (responseData) => {
+    fillProductForm(responseData);
+    document.getElementById('product-card')?.classList.remove('flipped');
+  }
+});
