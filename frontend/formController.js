@@ -1,4 +1,4 @@
-export function initFormController({ onFormReset }) {
+export function initFormController({ onFormReset, onSubmit }) {
   const form = document.getElementById('product-form');
   const flashcard = document.getElementById('product-card');
   const openBackButton = document.getElementById('open-back-btn');
@@ -17,7 +17,7 @@ export function initFormController({ onFormReset }) {
   openBackButton?.addEventListener('click', flipCard);
   backToFrontButtons.forEach((button) => button.addEventListener('click', unflipCard));
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     clearErrors();
 
@@ -61,10 +61,21 @@ export function initFormController({ onFormReset }) {
     );
     formData.barcode = barcode;
 
-    console.log('Formulario enviado', formData);
-    alert('Producto registrado con éxito. Revisa la consola para ver los datos.');
-    form.reset();
-    onFormReset?.();
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+
+    try {
+      await onSubmit?.(formData);
+      console.log('Formulario enviado', formData);
+      alert('Producto registrado con éxito.');
+      form.reset();
+      await onFormReset?.();
+    } catch (error) {
+      console.error('Error al enviar el formulario:', error);
+      alert(error.message || 'No se pudo enviar el formulario.');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
   });
 
   function showError(inputElement, message) {
