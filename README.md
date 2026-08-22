@@ -62,7 +62,7 @@ npm test
 La URL para registrar productos se configura en `frontend/apiConfig.js`:
 
 ```javascript
-export const PRODUCT_API_URL = 'https://tu-api.com/products';
+export const PRODUCT_API_URL = 'https://api-crud-wes5.onrender.com/api/products';
 ```
 
-El formulario enviará un `POST` con los campos `description`, `codigo`, `categoria`, `detal`, `mayor`, `marca`, `origen` y `barcode`. La respuesta debe tener un estado HTTP `2xx` para limpiar el formulario.
+El formulario enviará un `POST` con los campos `descripcion`, `codigo`, `categoria`, `precioDetal`, `precioMayor`, `marca`, `origen` y `codigoBarras`. Los precios se envían como números. La respuesta debe tener un estado HTTP `2xx` para limpiar el formulario.

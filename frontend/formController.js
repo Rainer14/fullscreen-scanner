@@ -24,7 +24,9 @@ export function initFormController({ onFormReset, onSubmit }) {
     let isValid = true;
     const requiredFields = [
       { id: 'description', message: 'La descripción es obligatoria.' },
-      { id: 'codigo', message: 'El código es obligatorio.' }
+      { id: 'codigo', message: 'El código es obligatorio.' },
+      { id: 'detal', message: 'El precio detal es obligatorio.' },
+      { id: 'mayor', message: 'El precio mayor es obligatorio.' }
     ];
 
     requiredFields.forEach(({ id, message }) => {
@@ -53,13 +55,16 @@ export function initFormController({ onFormReset, onSubmit }) {
 
     if (!isValid) return;
 
-    const formData = Object.fromEntries(
-      ['description', 'codigo', 'categoria', 'detal', 'mayor', 'marca', 'origen'].map((id) => [
-        id,
-        document.getElementById(id)?.value.trim() || ''
-      ])
-    );
-    formData.barcode = barcode;
+    const formData = {
+      descripcion: document.getElementById('description').value.trim(),
+      codigo: document.getElementById('codigo').value.trim(),
+      categoria: document.getElementById('categoria')?.value.trim() || '',
+      precioDetal: Number(document.getElementById('detal').value),
+      precioMayor: Number(document.getElementById('mayor').value),
+      marca: document.getElementById('marca')?.value.trim() || '',
+      origen: document.getElementById('origen')?.value.trim() || '',
+      codigoBarras: barcode
+    };
 
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton) submitButton.disabled = true;
