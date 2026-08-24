@@ -22,8 +22,22 @@
       <a class="nav-link" href="#catalogo" data-nav="belleza">Belleza</a>
       <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
     </nav>
-    <div class="header-actions"><button class="icon-button" id="search-toggle" aria-label="Abrir búsqueda" title="Buscar">⌕</button><button class="account-button" id="account-toggle">Iniciar sesión</button><button class="admin-button" id="admin-toggle">Panel admin</button><button class="bag-button" id="cart-toggle" aria-label="Abrir carrito">Bolsa <span id="cart-count">0</span></button></div>
+    <div class="header-actions"><button class="icon-button" id="search-toggle" aria-label="Abrir búsqueda" title="Buscar">⌕</button><button class="account-button" id="account-toggle">Iniciar sesión</button><button class="admin-button" id="admin-toggle">Panel admin</button><button class="bag-button" id="cart-toggle" aria-label="Abrir carrito">Bolsa <span id="cart-count">0</span></button><button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div>
   </header>
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true" inert>
+    <div class="mobile-menu-inner">
+      <p class="eyebrow">Explora Lumen</p>
+      <nav aria-label="Navegación móvil">
+        <a class="mobile-nav-link" href="#catalogo" data-nav="todos">Tienda <span>↗</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="escolar">Escolar <span>↗</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="belleza">Belleza <span>↗</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="hogar">Hogar <span>↗</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="tecnologia">Tecnología <span>↗</span></a>
+      </nav>
+      <div class="mobile-menu-actions"><button type="button" data-mobile-action="account">Iniciar sesión <span>↗</span></button><button type="button" data-mobile-action="admin">Panel admin <span>↗</span></button></div>
+      <p class="mobile-menu-note">Objetos útiles para días con intención.</p>
+    </div>
+  </div>
   <main id="inicio">
     <section class="hero" aria-labelledby="hero-title"><div class="hero-copy"><p class="eyebrow">Colección de temporada · 2026</p><h1 id="hero-title">Objetos que hacen bien.</h1><p class="hero-text">Una selección de piezas útiles, bonitas y hechas para acompañar tus días.</p><a class="primary-button" href="#catalogo">Explorar selección <span aria-hidden="true">↗</span></a></div><div class="hero-art" aria-label="Composición de productos Lumen" role="img"><div class="hero-note">Elegido<br><strong>para ti</strong></div><div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div><div class="hero-object"><span>LUMEN</span></div></div></section>
     <section class="category-strip" aria-label="Categorías"><button class="category-chip active" data-category="todos"><span>✦</span> Todo</button><button class="category-chip" data-category="escolar"><span>✎</span> Escolar</button><button class="category-chip" data-category="belleza"><span>◌</span> Belleza</button><button class="category-chip" data-category="hogar"><span>⌂</span> Hogar</button><button class="category-chip" data-category="tecnologia"><span>⌁</span> Tecnología</button></section>

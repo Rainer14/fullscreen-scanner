@@ -68,6 +68,7 @@ let products = [
 
 const storeState = { category: 'todos', query: '', sort: 'featured', cart: [] };
 const categoryNames = { escolar: 'Escolar', belleza: 'Belleza', hogar: 'Hogar', tecnologia: 'Tecnología', variados: 'Variados' };
+const routeCategories = new Set(['todos', 'escolar', 'belleza', 'hogar', 'tecnologia', 'variados']);
 const grid = document.getElementById('product-grid');
 const resultCount = document.getElementById('result-count');
 const toast = document.getElementById('toast');
@@ -104,6 +105,57 @@ function selectCategory(category) {
   renderProducts();
 }
 
+function routeFromLocation() {
+  const route = window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'inicio';
+  return routeCategories.has(route) ? route : 'inicio';
+}
+
+function navigateTo(category) {
+  const nextHash = category === 'inicio' ? '#inicio' : `#${category}`;
+  if (window.location.hash !== nextHash) window.history.pushState({ category }, '', nextHash);
+  applyRoute();
+}
+
+function applyRoute() {
+  const route = routeFromLocation();
+  if (routeCategories.has(route) || route === 'catalogo') {
+    selectCategory(route === 'catalogo' ? 'todos' : route);
+    document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    selectCategory('todos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+const mobileMenu = document.getElementById('mobile-menu');
+const menuToggle = document.getElementById('menu-toggle');
+let menuReturnFocus;
+function closeMobileMenu() {
+  mobileMenu.classList.remove('open');
+  mobileMenu.setAttribute('aria-hidden', 'true');
+  mobileMenu.inert = true;
+  menuToggle.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('menu-open');
+  menuReturnFocus?.focus();
+}
+function openMobileMenu() {
+  menuReturnFocus = document.activeElement;
+  mobileMenu.classList.add('open');
+  mobileMenu.setAttribute('aria-hidden', 'false');
+  mobileMenu.inert = false;
+  menuToggle.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('menu-open');
+  mobileMenu.querySelector('a')?.focus();
+}
+menuToggle.addEventListener('click', () => (mobileMenu.classList.contains('open') ? closeMobileMenu() : openMobileMenu()));
+window.addEventListener('popstate', applyRoute);
+window.addEventListener('hashchange', applyRoute);
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && mobileMenu.classList.contains('open')) closeMobileMenu(); });
+document.querySelectorAll('[data-mobile-action]').forEach((button) => button.addEventListener('click', () => {
+  closeMobileMenu();
+  openAccount(button.dataset.mobileAction === 'admin' ? 'admin' : 'login');
+}));
+
 document.addEventListener('click', (event) => {
   const addButton = event.target.closest('[data-add]');
   const removeButton = event.target.closest('[data-remove]');
@@ -118,8 +170,8 @@ document.addEventListener('click', (event) => {
   if (removeButton) { storeState.cart = storeState.cart.filter((item) => item.id !== Number(removeButton.dataset.remove)); renderCart(); }
   const categoryButton = event.target.closest('[data-category]');
   const navLink = event.target.closest('[data-nav]');
-  if (categoryButton) selectCategory(categoryButton.dataset.category);
-  if (navLink) selectCategory(navLink.dataset.nav);
+  if (categoryButton) navigateTo(categoryButton.dataset.category);
+  if (navLink) { navigateTo(navLink.dataset.nav); closeMobileMenu(); }
 });
 
 document.getElementById('search-input').addEventListener('input', (event) => { storeState.query = event.target.value; renderProducts(); });
@@ -129,7 +181,7 @@ document.getElementById('cart-toggle').addEventListener('click', openCart);
 document.getElementById('cart-close').addEventListener('click', closeCart);
 document.getElementById('drawer-overlay').addEventListener('click', closeCart);
 document.getElementById('checkout-button').addEventListener('click', () => { if (!storeState.cart.length) showToast('Añade un producto antes de finalizar'); else showToast('Checkout listo para conectar con tu pasarela'); });
-renderProducts();
+applyRoute();
 renderCart();
 
 const accountView = document.getElementById('account-view');
