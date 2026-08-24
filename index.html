@@ -1,156 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escáner QR Inmersivo</title>
-
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="rellenarIA.css">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lumen, tu tienda de objetos cotidianos bien elegidos.">
+  <title>Lumen | Objetos que hacen bien</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="rellenarIA.css">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
-
-<body>
-
-    <div class="form-container">
-        <form id="product-form" action="#" method="POST">
-            <div class="flashcard" id="product-card">
-                <div class="card-face card-front">
-                    <div class="form-header">
-                        <div>
-                            <h2>Registrar Producto</h2>
-                            <p>Llena los datos del producto. El código de barras se agrega en el reverso.</p>
-                        </div>
-                        <button type="button" id="open-back-btn" class="secondary-btn">Rellenar con IA</button>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="description">Descripción</label>
-                            <input type="text" id="description" name="description"
-                                placeholder="Descripción del producto" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="codigo">Código</label>
-                            <input type="text" id="codigo" name="codigo" placeholder="Código interno" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoria">Categoría</label>
-                            <input type="text" id="categoria" name="categoria" placeholder="Categoría">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="detal">Precio Detal</label>
-                            <input type="number" id="detal" name="detal" placeholder="Precio Detal" min="0" step="0.01">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="mayor">Precio Mayor</label>
-                            <input type="number" id="mayor" name="mayor" placeholder="Precio Mayor" min="0" step="0.01">
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="marca">Marca</label>
-                            <input type="text" id="marca" name="marca" placeholder="Marca">
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="origen">Origen del Producto</label>
-                            <input type="text" id="origen" name="origen" placeholder="Origen">
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="barcode">Código de Barras</label>
-                            <input type="text" id="barcode" name="barcode" placeholder="Código de barras"
-                                autocomplete="off">
-                        </div>
-                    </div>
-
-                    <div>
-
-                        <!-- Visor de la cámara -->
-                        <div id="reader"></div>
-
-                        <!-- Resultado -->
-                        <!-- <div id="result" class="result-box"></div> -->
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" id="btn-start" class="secondary-btn">Escanear código</button>
-                        <button type="submit" class="submit-btn">Registrar Producto</button>
-                    </div>
-                </div>
-            </form>
-
-                <div class="card-face card-back">
-                    <div class="form-header back-header">
-                        <div>
-                            <h2>Código de Barras</h2>
-                            <p>Ingresa el código manualmente, escanéalo con cámara o sube una imagen.</p>
-                        </div>
-                        <button type="button" id="back-to-front-btn" class="secondary-btn">Volver</button>
-                    </div>
-
-                    <!-- New here -->
-
-                    <div class="card">
-                        <h1 class="title">Extractor de Imagen IA</h1>
-                        <p class="subtitle">Sube una imagen para procesar el contenido</p>
-
-                        <form id="uploadForm">
-                            <input type="file" id="imageInput" accept="image/*">
-
-                            <div class="drop-zone" id="dropZone">
-                                <svg class="drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                <p class="drop-zone-text">
-                                    <strong>Haz clic para subir</strong> o arrastra y suelta aquí
-                                </p>
-                            </div>
-
-                            <div class="preview-container" id="previewContainer">
-                                <img src="" alt="Vista previa" class="preview-image" id="previewImage">
-                                <button type="button" class="remove-btn" id="removeBtn">&times;</button>
-                            </div>
-
-                            <!-- Contenedor de la barra de progreso -->
-                            <div class="progress-wrapper" id="progressWrapper">
-                                <div class="progress-info">
-                                    <span id="progressStatus">Subiendo...</span>
-                                    <span id="progressPercentage">0%</span>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar" id="progressBar"></div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="submit-btn" id="submitBtn" disabled>Enviar imagen</button>
-                        </form>
-
-                        <div id="result"></div>
-                    </div>
-
-
-
-                    <!-- end new -->
-
-
-                    <div class="form-actions">
-                        <button type="button" class="secondary-btn" id="back-to-front-btn-copy">Volver a datos</button>
-                        <!-- <button type="submit" class="submit-btn">Guardar producto</button> -->
-                    </div>
-                </div>
-            </div>
+<body data-section="todos">
+  <span class="sr-only">Escáner QR Inmersivo</span>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Lumen, inicio"><span class="brand-mark">L</span><span>Lumen</span></a>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a class="nav-link active" href="#catalogo" data-nav="todos">Tienda</a>
+      <a class="nav-link" href="#catalogo" data-nav="escolar">Escolar</a>
+      <a class="nav-link" href="#catalogo" data-nav="belleza">Belleza</a>
+      <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
+    </nav>
+    <div class="header-actions"><button class="icon-button" id="search-toggle" aria-label="Abrir búsqueda" title="Buscar">⌕</button><button class="account-button" id="account-toggle">Iniciar sesión</button><button class="admin-button" id="admin-toggle">Panel admin</button><button class="bag-button" id="cart-toggle" aria-label="Abrir carrito">Bolsa <span id="cart-count">0</span></button></div>
+  </header>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="hero-title"><div class="hero-copy"><p class="eyebrow">Colección de temporada · 2026</p><h1 id="hero-title">Objetos que hacen bien.</h1><p class="hero-text">Una selección de piezas útiles, bonitas y hechas para acompañar tus días.</p><a class="primary-button" href="#catalogo">Explorar selección <span aria-hidden="true">↗</span></a></div><div class="hero-art" aria-label="Composición de productos Lumen" role="img"><div class="hero-note">Elegido<br><strong>para ti</strong></div><div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div><div class="hero-object"><span>LUMEN</span></div></div></section>
+    <section class="category-strip" aria-label="Categorías"><button class="category-chip active" data-category="todos"><span>✦</span> Todo</button><button class="category-chip" data-category="escolar"><span>✎</span> Escolar</button><button class="category-chip" data-category="belleza"><span>◌</span> Belleza</button><button class="category-chip" data-category="hogar"><span>⌂</span> Hogar</button><button class="category-chip" data-category="tecnologia"><span>⌁</span> Tecnología</button></section>
+    <section class="catalog-section" id="catalogo" aria-labelledby="catalog-title"><div class="section-heading"><div><p class="eyebrow">La selección Lumen</p><h2 id="catalog-title">Encuentra tu próximo favorito</h2></div><p id="result-count" class="result-count"></p></div><div class="catalog-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar por nombre o categoría" aria-label="Buscar productos"></label><select id="sort-select" aria-label="Ordenar productos"><option value="featured">Destacados</option><option value="low">Precio: menor a mayor</option><option value="high">Precio: mayor a menor</option></select></div><div class="product-grid" id="product-grid" aria-live="polite"></div></section>
+  </main>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Carrito de compras" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">Tu selección</p><h2>Bolsa <span id="drawer-count">(0)</span></h2></div><button class="close-button" id="cart-close" aria-label="Cerrar carrito">×</button></div><div class="cart-items" id="cart-items"></div><div class="cart-footer"><div><span>Total</span><strong id="cart-total">$0</strong></div><button class="primary-button checkout-button" id="checkout-button">Finalizar compra <span>→</span></button></div></aside><div class="drawer-overlay" id="drawer-overlay"></div>
+  <section class="account-view" id="account-view" hidden aria-labelledby="account-title"><div class="account-card"><button class="close-button account-close" id="account-close" aria-label="Cerrar cuenta">×</button><div id="login-view"><p class="eyebrow">Área privada</p><h2 id="account-title">Bienvenido de vuelta.</h2><p class="account-intro">Accede a tu espacio para gestionar el catálogo de Lumen.</p><form id="login-form"><label for="login-email">Correo electrónico</label><input id="login-email" type="email" placeholder="tu@correo.com" required><label for="login-password">Contraseña</label><input id="login-password" type="password" placeholder="••••••••" minlength="4" required><button class="primary-button" type="submit">Entrar <span>→</span></button><p class="form-hint">Demo local: usa cualquier correo y una contraseña de 4 caracteres.</p></form></div><div id="admin-view" hidden><div class="account-heading"><div><p class="eyebrow">Panel de control</p><h2>Gestiona tu catálogo</h2></div><div class="account-heading-actions"><button class="text-button" id="legacy-form-toggle" type="button">Carga avanzada</button><button class="text-button" id="logout-button" type="button">Cerrar sesión</button></div></div><form id="manager-form" class="manager-form"><input type="hidden" id="manager-id"><div class="manager-fields"><label>Nombre<input id="manager-name" required></label><label>Categoría<select id="manager-category" required><option value="escolar">Escolar</option><option value="belleza">Belleza</option><option value="hogar">Hogar</option><option value="tecnologia">Tecnología</option><option value="variados">Variados</option></select></label><label>Precio<input id="manager-price" type="number" min="0" required></label><label>Imagen URL<input id="manager-image" type="url" placeholder="https://..." required></label></div><div class="manager-actions"><button class="primary-button" type="submit" id="manager-submit">Subir producto <span>+</span></button><button class="text-button" type="button" id="manager-cancel" hidden>Cancelar edición</button></div></form><div class="manager-list" id="manager-list"></div></div></div></section>
+  <section class="admin-panel" id="admin-panel" hidden aria-label="Registro de productos">
+    <div class="legacy-form-shell">
+      <div class="legacy-form-heading"><div><p class="eyebrow">Carga avanzada</p><h2>Sube un producto</h2><p>Completa los datos, escanea su código o deja que la IA los extraiga desde una imagen.</p></div><button type="button" id="back-to-front-btn-copy" class="text-button">Cerrar</button></div>
+      <div class="flashcard" id="product-card">
+        <form id="product-form" class="card-face card-front">
+          <button type="button" id="open-back-btn" class="secondary-action">Rellenar con IA <span>✦</span></button>
+          <div class="legacy-fields"><label for="description">Descripción<input id="description" name="description" required></label><label for="codigo">Código interno<input id="codigo" name="codigo" required></label><label for="categoria">Categoría<input id="categoria" name="categoria"></label><label for="detal">Precio detal<input id="detal" name="detal" type="number" min="0" step="0.01" required></label><label for="mayor">Precio mayor<input id="mayor" name="mayor" type="number" min="0" step="0.01" required></label><label for="marca">Marca<input id="marca" name="marca"></label><label for="origen">Origen<input id="origen" name="origen"></label><label for="barcode">Código de barras<input id="barcode" name="barcode" required></label></div>
+          <div id="reader"></div><div class="legacy-actions"><button type="button" id="btn-start" class="secondary-action">Escanear código</button><button type="submit" class="primary-button">Registrar producto <span>→</span></button></div>
         </form>
+        <div class="card-face card-back">
+          <button type="button" id="back-to-front-btn" class="text-button">← Volver a datos</button>
+          <form id="uploadForm" class="image-form"><div class="image-form-heading"><h3>Extraer datos con IA</h3><p>Sube una foto clara de la etiqueta del producto.</p></div><input type="file" id="imageInput" accept="image/*"><div id="dropZone" class="drop-zone"><strong>Arrastra una imagen aquí</strong><span>o haz clic para seleccionar</span></div><div id="previewContainer"><img id="previewImage" alt="Vista previa del producto"><button type="button" id="removeBtn" aria-label="Quitar imagen">×</button></div><div id="progressWrapper"><div><span id="progressStatus"></span><span id="progressPercentage"></span></div><div class="progress-track"><div id="progressBar"></div></div></div><button type="submit" id="submitBtn" class="primary-button" disabled>Procesar imagen <span>✦</span></button></form><div id="result" role="status"></div>
+        </div>
+      </div>
     </div>
-
-    <script src="script.js" type="module"></script>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div><script src="script.js" type="module"></script>
 </body>
-
 </html>
