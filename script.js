@@ -83,7 +83,7 @@ function renderProducts() {
   if (storeState.sort === 'low') visible.sort((first, second) => first.price - second.price);
   if (storeState.sort === 'high') visible.sort((first, second) => second.price - first.price);
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? 'producto' : 'productos'}`;
-  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3><p class="product-price">${money(product.price)}</p></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
+  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.detal || product.price)}</span>${product.mayor ? `<span class="price-mayor">Mayor ${money(product.mayor)}</span>` : ''}</div></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
 }
 
 function normalizeApiProduct(item) {
@@ -97,10 +97,15 @@ function normalizeApiProduct(item) {
   const id = pick('_id', 'id') ?? '';
   const name = pick('name', 'nombre', 'title', 'producto', 'descripcion') ?? 'Producto';
   const category = String(pick('category', 'categoria') ?? 'variados').toLowerCase();
-  const price = Number(pick('price', 'precio', 'precioDetal', 'precio_detal', 'precioMayor', 'precio_mayor')) || 0;
+  const detal = Number(pick('precioDetal', 'precio_detal', 'precio', 'price', 'detal')) || 0;
+  const mayor = Number(pick('precioMayor', 'precio_mayor', 'mayor')) || 0;
+  const price = detal || mayor;
   const image = pick('image', 'imagen', 'img', 'foto', 'photo', 'url');
   const label = pick('label', 'etiqueta', 'badge') ?? 'Nuevo';
-  return { id, name, category, price, image: image || '', label };
+  const marca = pick('marca', 'brand') ?? '';
+  const codigo = pick('codigo', 'código', 'code', 'codigoInterno', 'internalCode') ?? '';
+  const origen = pick('origen', 'origin', 'paisOrigen', 'paísOrigen') ?? '';
+  return { id, name, category, price, image: image || '', label, detal, mayor, marca, codigo, origen };
 }
 
 async function loadProducts() {
