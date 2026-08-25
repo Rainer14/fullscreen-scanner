@@ -14,15 +14,27 @@
 </head>
 <body data-section="todos">
   <span class="sr-only">Escáner QR Inmersivo</span>
-  <header class="site-header">
-    <a class="brand" href="#inicio" aria-label="Lumen, inicio"><span class="brand-mark">L</span><span>Lumen</span></a>
-    <nav class="main-nav" aria-label="Navegación principal">
-      <a class="nav-link active" href="#catalogo" data-nav="todos">Tienda</a>
-      <a class="nav-link" href="#catalogo" data-nav="escolar">Escolar</a>
-      <a class="nav-link" href="#catalogo" data-nav="belleza">Belleza</a>
-      <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
-    </nav>
-    <div class="header-actions"><button class="icon-button" id="search-toggle" aria-label="Abrir búsqueda" title="Buscar">⌕</button><button class="account-button" id="account-toggle">Iniciar sesión</button><button class="admin-button" id="admin-toggle">Panel admin</button><button class="bag-button" id="cart-toggle" aria-label="Abrir carrito">Bolsa <span id="cart-count">0</span></button><button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div>
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="Lumen, inicio"><span class="brand-mark">L</span><span>Lumen</span></a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a class="nav-link active" href="#catalogo" data-nav="todos">Tienda</a>
+        <a class="nav-link" href="#catalogo" data-nav="escolar">Escolar</a>
+        <a class="nav-link" href="#catalogo" data-nav="belleza">Belleza</a>
+        <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button" id="search-toggle" aria-label="Buscar productos" title="Buscar">⌕</button>
+        <button class="account-button" id="account-toggle">Iniciar sesión</button>
+        <button class="admin-button" id="admin-toggle">Panel admin</button>
+        <button class="bag-button" id="cart-toggle">
+          <span class="sr-only">Abrir carrito, </span>Bolsa
+          <span id="cart-count" aria-hidden="true">0</span>
+          <span class="sr-only" id="cart-count-sr"> productos</span>
+        </button>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+      </div>
+    </div>
   </header>
   <div class="mobile-menu" id="mobile-menu" aria-hidden="true" inert>
     <div class="mobile-menu-inner">

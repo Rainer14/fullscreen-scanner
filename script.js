@@ -181,6 +181,11 @@ document.getElementById('cart-toggle').addEventListener('click', openCart);
 document.getElementById('cart-close').addEventListener('click', closeCart);
 document.getElementById('drawer-overlay').addEventListener('click', closeCart);
 document.getElementById('checkout-button').addEventListener('click', () => { if (!storeState.cart.length) showToast('Añade un producto antes de finalizar'); else showToast('Checkout listo para conectar con tu pasarela'); });
+const siteHeaderEl = document.getElementById('site-header');
+const updateHeaderShadow = () => siteHeaderEl.classList.toggle('scrolled', window.scrollY > 8);
+window.addEventListener('scroll', updateHeaderShadow, { passive: true });
+updateHeaderShadow();
+
 applyRoute();
 renderCart();
 
