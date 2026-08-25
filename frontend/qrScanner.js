@@ -5,6 +5,9 @@ export function initQrScanner({ onDetected } = {}) {
   const flashcard = document.getElementById('product-card');
   const scannerModal = document.getElementById('scanner-modal');
   const scannerClose = document.getElementById('scanner-close');
+  const scannerHint = document.getElementById('scanner-hint');
+  const uploadButton = document.getElementById('scanner-upload');
+  const fileInput = document.getElementById('scanner-file');
   const switchButton = document.getElementById('btn-change-camera');
 
   if (!btnStart || !readerDiv || typeof window.Html5Qrcode !== 'function') {
@@ -28,8 +31,16 @@ export function initQrScanner({ onDetected } = {}) {
     return ranked[0]?.id || cameras[0]?.id || null;
   }
 
+  const defaultHint = scannerHint?.textContent || '';
+  function showHint(text, isError = false) {
+    if (!scannerHint) return;
+    scannerHint.textContent = text;
+    scannerHint.classList.toggle('error', isError);
+  }
   function openScanner() {
     scannerModal?.removeAttribute('hidden');
+    if (uploadButton) uploadButton.style.display = 'inline-block';
+    showHint(defaultHint);
     requestAnimationFrame(() => scannerModal?.classList.add('open'));
   }
 
@@ -77,7 +88,7 @@ export function initQrScanner({ onDetected } = {}) {
       btnStart.disabled = true;
     } catch (error) {
       console.error('Error al iniciar cámara:', error);
-      closeScanner();
+      showHint('No se pudo acceder a la cámara. Sube una imagen del código en su lugar.', true);
       btnStart.disabled = false;
     }
   }
@@ -110,6 +121,23 @@ export function initQrScanner({ onDetected } = {}) {
   });
 
   switchButton?.addEventListener('click', switchCamera);
+
+  uploadButton?.addEventListener('click', () => fileInput?.click());
+  fileInput?.addEventListener('change', async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      await stop();
+      showHint('Analizando la imagen…');
+      const decodedText = await html5QrCode.scanFile(file, true);
+      handleDetected(decodedText);
+    } catch (error) {
+      console.error('Error al leer la imagen:', error);
+      showHint('No se detectó ningún código en la imagen. Prueba con otra foto.', true);
+    } finally {
+      if (fileInput) fileInput.value = '';
+    }
+  });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && scannerModal && !scannerModal.hasAttribute('hidden')) {

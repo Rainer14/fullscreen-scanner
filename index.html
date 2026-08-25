@@ -78,9 +78,13 @@
     <div class="scanner-stage">
       <div id="reader"></div>
       <div class="scanner-frame" aria-hidden="true"><span class="scanner-corner tl"></span><span class="scanner-corner tr"></span><span class="scanner-corner bl"></span><span class="scanner-corner br"></span></div>
-      <p class="scanner-hint">Apunta al código o QR dentro del marco</p>
-      <button type="button" class="scanner-switch" id="btn-change-camera">Cambiar cámara</button>
+      <p class="scanner-hint" id="scanner-hint">Apunta al código o QR dentro del marco, o sube una imagen</p>
+      <div class="scanner-actions">
+        <button type="button" class="scanner-pill" id="scanner-upload">Subir imagen</button>
+        <button type="button" class="scanner-pill" id="btn-change-camera">Cambiar cámara</button>
+      </div>
     </div>
+    <input type="file" id="scanner-file" accept="image/*" hidden>
   </section>
   <div class="toast" id="toast" role="status" aria-live="polite"></div><script src="script.js" type="module"></script>
 </body>
