@@ -3,6 +3,9 @@ export function initQrScanner({ onDetected } = {}) {
   const readerDiv = document.getElementById('reader');
   const barcodeInput = document.getElementById('barcode');
   const flashcard = document.getElementById('product-card');
+  const scannerModal = document.getElementById('scanner-modal');
+  const scannerClose = document.getElementById('scanner-close');
+  const switchButton = document.getElementById('btn-change-camera');
 
   if (!btnStart || !readerDiv || typeof window.Html5Qrcode !== 'function') {
     return { stop: async () => {}, isActive: () => false };
@@ -12,7 +15,7 @@ export function initQrScanner({ onDetected } = {}) {
   let currentCameraId = null;
   let cameraList = [];
   const html5QrCode = new window.Html5Qrcode('reader');
-  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+  const config = { fps: 10 };
 
   function getPreferredCameraId(cameras) {
     const preferredOrder = ['rear', 'back', 'trasera', 'environment', 'user', 'front', 'frontal', 'selfie'];
@@ -25,50 +28,31 @@ export function initQrScanner({ onDetected } = {}) {
     return ranked[0]?.id || cameras[0]?.id || null;
   }
 
-  function setReaderVisible(visible) {
-    readerDiv.classList.toggle('scanner-active', visible);
-    const closeButton = document.getElementById('btn-close-fallback');
-    if (closeButton) closeButton.style.display = visible ? 'block' : 'none';
-    const switchButton = document.getElementById('btn-change-camera');
+  function openScanner() {
+    scannerModal?.removeAttribute('hidden');
+    requestAnimationFrame(() => scannerModal?.classList.add('open'));
+  }
+
+  function closeScanner() {
+    scannerModal?.classList.remove('open');
+    scannerModal?.setAttribute('hidden', '');
+  }
+
+  function setControlsVisible(visible) {
     if (switchButton) switchButton.style.display = visible && cameraList.length > 1 ? 'block' : 'none';
-  }
-
-  async function requestFullscreen() {
-    for (const method of ['requestFullscreen', 'webkitRequestFullscreen', 'msRequestFullscreen']) {
-      if (readerDiv[method]) {
-        try {
-          await readerDiv[method]();
-          return;
-        } catch (error) {
-          // Use the CSS fallback when native fullscreen is unavailable or denied.
-        }
-      }
-    }
-    readerDiv.classList.add('fullscreen-fallback');
-    addCloseButton();
-  }
-
-  async function exitFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      const method = document.exitFullscreen ? 'exitFullscreen' : 'webkitExitFullscreen';
-      if (document[method]) await document[method]();
-    }
-    setReaderVisible(false);
-    readerDiv.classList.remove('fullscreen-fallback');
-    const closeButton = document.getElementById('btn-close-fallback');
-    if (closeButton) closeButton.style.display = 'none';
   }
 
   async function stop() {
     if (!isScanning) return;
     try {
       await html5QrCode.stop();
-      isScanning = false;
-      currentCameraId = null;
-      setReaderVisible(false);
-      btnStart.disabled = false;
     } catch (error) {
       console.error('Error al detener cámara:', error);
+    } finally {
+      isScanning = false;
+      currentCameraId = null;
+      setControlsVisible(false);
+      btnStart.disabled = false;
     }
   }
 
@@ -77,50 +61,25 @@ export function initQrScanner({ onDetected } = {}) {
       barcodeInput.value = decodedText;
       barcodeInput.focus();
     }
-    flashcard?.classList.add('flipped');
+    flashcard?.classList.remove('flipped');
+    closeScanner();
     onDetected?.(decodedText);
-    exitFullscreen();
     stop();
   }
 
-  function addCloseButton() {
-    let closeButton = document.getElementById('btn-close-fallback');
-    if (!closeButton) {
-      closeButton = document.createElement('button');
-      closeButton.id = 'btn-close-fallback';
-      closeButton.className = 'btn-close-fallback';
-      closeButton.textContent = '✕ Salir';
-      closeButton.addEventListener('click', async () => {
-        await exitFullscreen();
-        await stop();
-      });
-      readerDiv.appendChild(closeButton);
-    }
-    closeButton.style.display = 'block';
-  }
-
-  function addCameraSwitchButton() {
-    let switchButton = document.getElementById('btn-change-camera');
-    if (!switchButton) {
-      switchButton = document.createElement('button');
-      switchButton.id = 'btn-change-camera';
-      switchButton.className = 'btn-change-camera';
-      switchButton.textContent = 'Cambiar';
-      switchButton.addEventListener('click', switchCamera);
-      readerDiv.appendChild(switchButton);
-    }
-    switchButton.style.display = isScanning && cameraList.length > 1 ? 'block' : 'none';
-  }
-
   async function startCamera(cameraId) {
-    await html5QrCode.start(cameraId, config, handleDetected, () => {});
-    isScanning = true;
-    currentCameraId = cameraId;
-    setReaderVisible(true);
-    addCloseButton();
-    addCameraSwitchButton();
-    await requestFullscreen();
-    btnStart.disabled = true;
+    openScanner();
+    try {
+      await html5QrCode.start(cameraId, config, handleDetected, () => {});
+      isScanning = true;
+      currentCameraId = cameraId;
+      setControlsVisible(true);
+      btnStart.disabled = true;
+    } catch (error) {
+      console.error('Error al iniciar cámara:', error);
+      closeScanner();
+      btnStart.disabled = false;
+    }
   }
 
   async function switchCamera() {
@@ -145,10 +104,18 @@ export function initQrScanner({ onDetected } = {}) {
     }
   });
 
-  document.addEventListener('fullscreenchange', () => {
-    const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement)
-      || readerDiv.classList.contains('fullscreen-fallback');
-    if (!active && isScanning) stop();
+  scannerClose?.addEventListener('click', async () => {
+    await stop();
+    closeScanner();
+  });
+
+  switchButton?.addEventListener('click', switchCamera);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && scannerModal && !scannerModal.hasAttribute('hidden')) {
+      stop();
+      closeScanner();
+    }
   });
 
   window.Html5Qrcode.getCameras()

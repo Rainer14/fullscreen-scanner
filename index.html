@@ -64,13 +64,22 @@
         <form id="product-form" class="card-face card-front">
           <button type="button" id="open-back-btn" class="secondary-action">Rellenar con IA <span>✦</span></button>
           <div class="legacy-fields"><label for="description">Descripción<input id="description" name="description" required></label><label for="codigo">Código interno<input id="codigo" name="codigo" required></label><label for="categoria">Categoría<input id="categoria" name="categoria"></label><label for="detal">Precio detal<input id="detal" name="detal" type="number" min="0" step="0.01" required></label><label for="mayor">Precio mayor<input id="mayor" name="mayor" type="number" min="0" step="0.01" required></label><label for="marca">Marca<input id="marca" name="marca"></label><label for="origen">Origen<input id="origen" name="origen"></label><label for="barcode">Código de barras<input id="barcode" name="barcode" required></label></div>
-          <div id="reader"></div><div class="legacy-actions"><button type="button" id="btn-start" class="secondary-action">Escanear código</button><button type="submit" class="primary-button">Registrar producto <span>→</span></button></div>
+           <div class="legacy-actions"><button type="button" id="btn-start" class="secondary-action">Escanear código</button><button type="submit" class="primary-button">Registrar producto <span>→</span></button></div>
         </form>
         <div class="card-face card-back">
           <button type="button" id="back-to-front-btn" class="text-button">← Volver a datos</button>
           <form id="uploadForm" class="image-form"><div class="image-form-heading"><h3>Extraer datos con IA</h3><p>Sube una foto clara de la etiqueta del producto.</p></div><input type="file" id="imageInput" accept="image/*"><div id="dropZone" class="drop-zone"><strong>Arrastra una imagen aquí</strong><span>o haz clic para seleccionar</span></div><div id="previewContainer"><img id="previewImage" alt="Vista previa del producto"><button type="button" id="removeBtn" aria-label="Quitar imagen">×</button></div><div id="progressWrapper"><div><span id="progressStatus"></span><span id="progressPercentage"></span></div><div class="progress-track"><div id="progressBar"></div></div></div><button type="submit" id="submitBtn" class="primary-button" disabled>Procesar imagen <span>✦</span></button></form><div id="result" role="status"></div>
         </div>
       </div>
+    </div>
+  </section>
+  <section class="scanner-modal" id="scanner-modal" hidden aria-label="Escáner de código de barras">
+    <button type="button" class="scanner-close" id="scanner-close" aria-label="Cerrar escáner">×</button>
+    <div class="scanner-stage">
+      <div id="reader"></div>
+      <div class="scanner-frame" aria-hidden="true"><span class="scanner-corner tl"></span><span class="scanner-corner tr"></span><span class="scanner-corner bl"></span><span class="scanner-corner br"></span></div>
+      <p class="scanner-hint">Apunta al código o QR dentro del marco</p>
+      <button type="button" class="scanner-switch" id="btn-change-camera">Cambiar cámara</button>
     </div>
   </section>
   <div class="toast" id="toast" role="status" aria-live="polite"></div><script src="script.js" type="module"></script>
