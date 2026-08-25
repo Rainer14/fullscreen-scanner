@@ -107,7 +107,7 @@ function selectCategory(category) {
 
 function routeFromLocation() {
   const route = window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'inicio';
-  return routeCategories.has(route) ? route : 'inicio';
+  return route;
 }
 
 function navigateTo(category) {
@@ -118,11 +118,16 @@ function navigateTo(category) {
 
 function applyRoute() {
   const route = routeFromLocation();
-  if (routeCategories.has(route) || route === 'catalogo') {
-    selectCategory(route === 'catalogo' ? 'todos' : route);
+  if (route === 'cuenta') {
+    showLoginPage();
+    return;
+  }
+  hideLoginPage();
+  const category = routeCategories.has(route) ? route : 'todos';
+  selectCategory(category);
+  if (route === 'catalogo' || routeCategories.has(route)) {
     document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } else {
-    selectCategory('todos');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -153,7 +158,8 @@ window.addEventListener('hashchange', applyRoute);
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && mobileMenu.classList.contains('open')) closeMobileMenu(); });
 document.querySelectorAll('[data-mobile-action]').forEach((button) => button.addEventListener('click', () => {
   closeMobileMenu();
-  openAccount(button.dataset.mobileAction === 'admin' ? 'admin' : 'login');
+  if (button.dataset.mobileAction === 'admin') openAccount();
+  else navigateToLogin();
 }));
 
 document.addEventListener('click', (event) => {
@@ -186,12 +192,11 @@ const updateHeaderShadow = () => siteHeaderEl.classList.toggle('scrolled', windo
 window.addEventListener('scroll', updateHeaderShadow, { passive: true });
 updateHeaderShadow();
 
-applyRoute();
 renderCart();
 
 const accountView = document.getElementById('account-view');
-const loginView = document.getElementById('login-view');
 const adminView = document.getElementById('admin-view');
+const loginPage = document.getElementById('login-page');
 const managerForm = document.getElementById('manager-form');
 const managerList = document.getElementById('manager-list');
 
@@ -199,12 +204,36 @@ function renderManagerList() {
   managerList.innerHTML = products.map((product) => `<article class="manager-item"><div><p>${product.name}</p><small>${categoryNames[product.category] || product.category} · ${money(product.price)}</small></div><div class="manager-controls"><button type="button" data-edit-product="${product.id}">Modificar</button><button type="button" data-delete-product="${product.id}">Eliminar</button></div></article>`).join('');
 }
 
-function openAccount(view = 'login') {
+function openAccount() {
   accountView.hidden = false;
-  loginView.hidden = view !== 'login';
-  adminView.hidden = view !== 'admin';
-  if (view === 'admin') renderManagerList();
-  accountView.querySelector(view === 'admin' ? '#manager-name' : 'input:not([type="hidden"])')?.focus();
+  adminView.hidden = false;
+  renderManagerList();
+  document.getElementById('manager-name').focus();
+}
+
+function closeAccount() {
+  accountView.hidden = true;
+}
+
+function navigateToLogin() {
+  if (window.location.hash !== '#/cuenta') window.history.pushState({ route: 'cuenta' }, '', '#/cuenta');
+  applyRoute();
+}
+
+function showLoginPage() {
+  closeAccount();
+  closeMobileMenu();
+  document.getElementById('inicio').hidden = true;
+  loginPage.hidden = false;
+  document.body.dataset.route = 'cuenta';
+  window.scrollTo({ top: 0 });
+  document.getElementById('login-email')?.focus();
+}
+
+function hideLoginPage() {
+  loginPage.hidden = true;
+  document.getElementById('inicio').hidden = false;
+  document.body.dataset.route = 'inicio';
 }
 
 function resetManagerForm() {
@@ -214,21 +243,19 @@ function resetManagerForm() {
   document.getElementById('manager-cancel').hidden = true;
 }
 
-document.getElementById('account-toggle').addEventListener('click', () => openAccount('login'));
-document.getElementById('admin-toggle').addEventListener('click', () => openAccount(loginView.hidden ? 'admin' : 'login'));
-document.getElementById('account-close').addEventListener('click', () => { accountView.hidden = true; });
+document.getElementById('account-toggle').addEventListener('click', navigateToLogin);
+document.getElementById('admin-toggle').addEventListener('click', openAccount);
+document.getElementById('account-close').addEventListener('click', closeAccount);
 document.getElementById('login-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  loginView.hidden = true;
-  adminView.hidden = false;
-  renderManagerList();
-  document.getElementById('manager-name').focus();
+  window.history.pushState({ category: 'inicio' }, '', '#inicio');
+  applyRoute();
+  openAccount();
 });
 document.getElementById('logout-button').addEventListener('click', () => {
-  adminView.hidden = true;
-  loginView.hidden = false;
-  document.getElementById('login-form').reset();
-  document.getElementById('login-email').focus();
+  closeAccount();
+  if (window.location.hash !== '#inicio') window.history.pushState({ category: 'inicio' }, '', '#inicio');
+  applyRoute();
 });
 document.getElementById('legacy-form-toggle').addEventListener('click', () => {
   const legacyPanel = document.getElementById('admin-panel');
@@ -283,3 +310,5 @@ managerList.addEventListener('click', (event) => {
     }
   }
 });
+
+applyRoute();

@@ -24,6 +24,7 @@
         <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
       </nav>
       <div class="header-actions">
+        <a class="nav-link login-home-link" href="#catalogo">Tienda</a>
         <button class="icon-button" id="search-toggle" aria-label="Buscar productos" title="Buscar">⌕</button>
         <button class="account-button" id="account-toggle">Iniciar sesión</button>
         <button class="admin-button" id="admin-toggle">Panel admin</button>
@@ -55,8 +56,37 @@
     <section class="category-strip" aria-label="Categorías"><button class="category-chip active" data-category="todos"><span>✦</span> Todo</button><button class="category-chip" data-category="escolar"><span>✎</span> Escolar</button><button class="category-chip" data-category="belleza"><span>◌</span> Belleza</button><button class="category-chip" data-category="hogar"><span>⌂</span> Hogar</button><button class="category-chip" data-category="tecnologia"><span>⌁</span> Tecnología</button></section>
     <section class="catalog-section" id="catalogo" aria-labelledby="catalog-title"><div class="section-heading"><div><p class="eyebrow">La selección Lumen</p><h2 id="catalog-title">Encuentra tu próximo favorito</h2></div><p id="result-count" class="result-count"></p></div><div class="catalog-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar por nombre o categoría" aria-label="Buscar productos"></label><select id="sort-select" aria-label="Ordenar productos"><option value="featured">Destacados</option><option value="low">Precio: menor a mayor</option><option value="high">Precio: mayor a menor</option></select></div><div class="product-grid" id="product-grid" aria-live="polite"></div></section>
   </main>
+  <section class="login-page" id="login-page" hidden aria-labelledby="login-page-title">
+    <div class="login-shell">
+      <aside class="login-aside">
+        <div class="login-brand"><span class="brand-mark">L</span><span>Lumen</span></div>
+        <div class="login-aside-body">
+          <p class="eyebrow login-eyebrow">Área privada</p>
+          <h2 class="login-aside-title">Bienvenido<br>de vuelta.</h2>
+          <p class="login-aside-text">Gestiona tu catálogo, sube productos y mantén tu tienda siempre actualizada.</p>
+        </div>
+        <p class="login-aside-foot">Objetos útiles para días con intención.</p>
+      </aside>
+      <div class="login-panel">
+        <form id="login-form" class="login-form">
+          <h1 id="login-page-title" class="login-form-title">Inicia sesión</h1>
+          <p class="login-form-sub">Accede a tu espacio de Lumen para administrar el catálogo.</p>
+          <label class="login-field">
+            <input id="login-email" type="email" placeholder=" " required>
+            <span>Correo electrónico</span>
+          </label>
+          <label class="login-field">
+            <input id="login-password" type="password" placeholder=" " minlength="4" required>
+            <span>Contraseña</span>
+          </label>
+          <button class="primary-button login-submit" type="submit">Entrar <span aria-hidden="true">→</span></button>
+          <p class="form-hint">Demo local: usa cualquier correo y una contraseña de 4 caracteres.</p>
+        </form>
+      </div>
+    </div>
+  </section>
   <aside class="cart-drawer" id="cart-drawer" aria-label="Carrito de compras" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">Tu selección</p><h2>Bolsa <span id="drawer-count">(0)</span></h2></div><button class="close-button" id="cart-close" aria-label="Cerrar carrito">×</button></div><div class="cart-items" id="cart-items"></div><div class="cart-footer"><div><span>Total</span><strong id="cart-total">$0</strong></div><button class="primary-button checkout-button" id="checkout-button">Finalizar compra <span>→</span></button></div></aside><div class="drawer-overlay" id="drawer-overlay"></div>
-  <section class="account-view" id="account-view" hidden aria-labelledby="account-title"><div class="account-card"><button class="close-button account-close" id="account-close" aria-label="Cerrar cuenta">×</button><div id="login-view"><p class="eyebrow">Área privada</p><h2 id="account-title">Bienvenido de vuelta.</h2><p class="account-intro">Accede a tu espacio para gestionar el catálogo de Lumen.</p><form id="login-form"><label for="login-email">Correo electrónico</label><input id="login-email" type="email" placeholder="tu@correo.com" required><label for="login-password">Contraseña</label><input id="login-password" type="password" placeholder="••••••••" minlength="4" required><button class="primary-button" type="submit">Entrar <span>→</span></button><p class="form-hint">Demo local: usa cualquier correo y una contraseña de 4 caracteres.</p></form></div><div id="admin-view" hidden><div class="account-heading"><div><p class="eyebrow">Panel de control</p><h2>Gestiona tu catálogo</h2></div><div class="account-heading-actions"><button class="text-button" id="legacy-form-toggle" type="button">Carga avanzada</button><button class="text-button" id="logout-button" type="button">Cerrar sesión</button></div></div><form id="manager-form" class="manager-form"><input type="hidden" id="manager-id"><div class="manager-fields"><label>Nombre<input id="manager-name" required></label><label>Categoría<select id="manager-category" required><option value="escolar">Escolar</option><option value="belleza">Belleza</option><option value="hogar">Hogar</option><option value="tecnologia">Tecnología</option><option value="variados">Variados</option></select></label><label>Precio<input id="manager-price" type="number" min="0" required></label><label>Imagen URL<input id="manager-image" type="url" placeholder="https://..." required></label></div><div class="manager-actions"><button class="primary-button" type="submit" id="manager-submit">Subir producto <span>+</span></button><button class="text-button" type="button" id="manager-cancel" hidden>Cancelar edición</button></div></form><div class="manager-list" id="manager-list"></div></div></div></section>
+  <section class="account-view" id="account-view" hidden aria-labelledby="account-title"><div class="account-card"><button class="close-button account-close" id="account-close" aria-label="Cerrar cuenta">×</button><div id="admin-view" hidden><div class="account-heading"><div><p class="eyebrow">Panel de control</p><h2 id="account-title">Gestiona tu catálogo</h2></div><div class="account-heading-actions"><button class="text-button" id="legacy-form-toggle" type="button">Carga avanzada</button><button class="text-button" id="logout-button" type="button">Cerrar sesión</button></div></div><form id="manager-form" class="manager-form"><input type="hidden" id="manager-id"><div class="manager-fields"><label>Nombre<input id="manager-name" required></label><label>Categoría<select id="manager-category" required><option value="escolar">Escolar</option><option value="belleza">Belleza</option><option value="hogar">Hogar</option><option value="tecnologia">Tecnología</option><option value="variados">Variados</option></select></label><label>Precio<input id="manager-price" type="number" min="0" required></label><label>Imagen URL<input id="manager-image" type="url" placeholder="https://..." required></label></div><div class="manager-actions"><button class="primary-button" type="submit" id="manager-submit">Subir producto <span>+</span></button><button class="text-button" type="button" id="manager-cancel" hidden>Cancelar edición</button></div></form><div class="manager-list" id="manager-list"></div></div></div></section>
   <section class="admin-panel" id="admin-panel" hidden aria-label="Registro de productos">
     <div class="legacy-form-shell">
       <div class="legacy-form-heading"><div><p class="eyebrow">Carga avanzada</p><h2>Sube un producto</h2><p>Completa los datos, escanea su código o deja que la IA los extraiga desde una imagen.</p></div><button type="button" id="back-to-front-btn-copy" class="text-button">Cerrar</button></div>
