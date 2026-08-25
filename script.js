@@ -46,7 +46,8 @@ initFormController({
   },
   onFormReset: async () => {
     if (qrScanner.isActive()) await qrScanner.stop();
-  }
+  },
+  onSuccess: () => loadProducts()
 });
 initImageUploader({
   onDataExtracted: (responseData) => {
@@ -82,7 +83,40 @@ function renderProducts() {
   if (storeState.sort === 'low') visible.sort((first, second) => first.price - second.price);
   if (storeState.sort === 'high') visible.sort((first, second) => second.price - first.price);
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? 'producto' : 'productos'}`;
-  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span><img src="${product.image}" alt="${product.name}" loading="lazy"><button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3><p class="product-price">${money(product.price)}</p></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
+  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3><p class="product-price">${money(product.price)}</p></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
+}
+
+function normalizeApiProduct(item) {
+  const pick = (...keys) => {
+    for (const key of keys) {
+      const value = item[key];
+      if (value !== undefined && value !== null && value !== '') return value;
+    }
+    return undefined;
+  };
+  const id = pick('_id', 'id') ?? '';
+  const name = pick('name', 'nombre', 'title', 'producto', 'descripcion') ?? 'Producto';
+  const category = String(pick('category', 'categoria') ?? 'variados').toLowerCase();
+  const price = Number(pick('price', 'precio', 'precioDetal', 'precio_detal', 'precioMayor', 'precio_mayor')) || 0;
+  const image = pick('image', 'imagen', 'img', 'foto', 'photo', 'url');
+  const label = pick('label', 'etiqueta', 'badge') ?? 'Nuevo';
+  return { id, name, category, price, image: image || '', label };
+}
+
+async function loadProducts() {
+  if (!PRODUCT_API_URL) return;
+  try {
+    const response = await fetch(PRODUCT_API_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const list = Array.isArray(payload) ? payload : (payload.data || payload.products || payload.result || []);
+    products = list.map(normalizeApiProduct).filter((product) => product.name);
+    renderProducts();
+    if (adminView && !adminView.hidden) renderManagerList();
+  } catch (error) {
+    console.error('No se pudo cargar el catálogo desde la API:', error);
+    showToast('No se pudo conectar a la API; mostrando catálogo local.');
+  }
 }
 
 function renderCart() {
@@ -91,7 +125,7 @@ function renderCart() {
   document.getElementById('cart-count').textContent = count;
   document.getElementById('drawer-count').textContent = `(${count})`;
   document.getElementById('cart-total').textContent = money(total);
-  document.getElementById('cart-items').innerHTML = storeState.cart.length ? storeState.cart.map((item) => `<div class="cart-line"><img src="${item.image}" alt=""><div><strong>${item.name}</strong><br><small>${item.quantity} × ${money(item.price)}</small><br><button class="remove-item" data-remove="${item.id}">Eliminar</button></div><strong>${money(item.price * item.quantity)}</strong></div>`).join('') : '<p class="empty-state">Tu bolsa está esperando algo especial.</p>';
+  document.getElementById('cart-items').innerHTML = storeState.cart.length ? storeState.cart.map((item) => `<div class="cart-line"><img src="${item.image}" alt="" onerror="this.style.display='none'"><div><strong>${item.name}</strong><br><small>${item.quantity} × ${money(item.price)}</small><br><button class="remove-item" data-remove="${item.id}">Eliminar</button></div><strong>${money(item.price * item.quantity)}</strong></div>`).join('') : '<p class="empty-state">Tu bolsa está esperando algo especial.</p>';
 }
 
 function showToast(message) { toast.textContent = message; toast.classList.add('show'); window.setTimeout(() => toast.classList.remove('show'), 2200); }
@@ -166,14 +200,14 @@ document.addEventListener('click', (event) => {
   const addButton = event.target.closest('[data-add]');
   const removeButton = event.target.closest('[data-remove]');
   if (addButton) {
-    const product = products.find((item) => item.id === Number(addButton.dataset.add));
+    const product = products.find((item) => String(item.id) === addButton.dataset.add);
     const existing = storeState.cart.find((item) => item.id === product.id);
     if (existing) existing.quantity += 1;
     else storeState.cart.push({ ...product, quantity: 1 });
     renderCart();
     showToast(`${product.name} se añadió a tu bolsa`);
   }
-  if (removeButton) { storeState.cart = storeState.cart.filter((item) => item.id !== Number(removeButton.dataset.remove)); renderCart(); }
+  if (removeButton) { storeState.cart = storeState.cart.filter((item) => String(item.id) !== removeButton.dataset.remove); renderCart(); }
   const categoryButton = event.target.closest('[data-category]');
   const navLink = event.target.closest('[data-nav]');
   if (categoryButton) navigateTo(categoryButton.dataset.category);
@@ -267,7 +301,7 @@ document.getElementById('back-to-front-btn-copy').addEventListener('click', () =
 document.getElementById('manager-cancel').addEventListener('click', resetManagerForm);
 managerForm.addEventListener('submit', (event) => {
   event.preventDefault();
-  const id = Number(document.getElementById('manager-id').value);
+  const id = document.getElementById('manager-id').value;
   const productData = {
     name: document.getElementById('manager-name').value.trim(),
     category: document.getElementById('manager-category').value,
@@ -287,7 +321,7 @@ managerList.addEventListener('click', (event) => {
   const editButton = event.target.closest('[data-edit-product]');
   const deleteButton = event.target.closest('[data-delete-product]');
   if (editButton) {
-    const product = products.find((item) => item.id === Number(editButton.dataset.editProduct));
+    const product = products.find((item) => String(item.id) === String(editButton.dataset.editProduct));
     document.getElementById('manager-id').value = product.id;
     document.getElementById('manager-name').value = product.name;
     document.getElementById('manager-category').value = product.category;
@@ -298,8 +332,8 @@ managerList.addEventListener('click', (event) => {
     document.getElementById('manager-name').focus();
   }
   if (deleteButton) {
-    const id = Number(deleteButton.dataset.deleteProduct);
-    const product = products.find((item) => item.id === id);
+    const id = deleteButton.dataset.deleteProduct;
+    const product = products.find((item) => String(item.id) === id);
     if (window.confirm(`¿Eliminar ${product.name}?`)) {
       products = products.filter((item) => item.id !== id);
       storeState.cart = storeState.cart.filter((item) => item.id !== id);
@@ -311,4 +345,4 @@ managerList.addEventListener('click', (event) => {
   }
 });
 
-applyRoute();
+loadProducts().finally(() => applyRoute());

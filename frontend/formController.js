@@ -1,4 +1,4 @@
-export function initFormController({ onFormReset, onSubmit }) {
+export function initFormController({ onFormReset, onSubmit, onSuccess }) {
   const form = document.getElementById('product-form');
   const flashcard = document.getElementById('product-card');
   const openBackButton = document.getElementById('open-back-btn');
@@ -71,7 +71,8 @@ export function initFormController({ onFormReset, onSubmit }) {
 
     try {
       await onSubmit?.(formData);
-      console.log('Formulario enviado', formData);
+       console.log('Formulario enviado', formData);
+      await onSuccess?.();
       alert('Producto registrado con éxito.');
       form.reset();
       await onFormReset?.();
