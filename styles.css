@@ -505,6 +505,7 @@ select {
 
 .product-card {
   min-width: 0;
+  transition: transform .3s ease;
 }
 
 .product-image {
@@ -514,6 +515,11 @@ select {
   display: grid;
   place-items: center;
   overflow: hidden;
+  border-radius: 4px;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
 }
 
 .product-image img {
@@ -1745,15 +1751,155 @@ body[data-route="cuenta"] .login-home-link {
     gap: 22px 12px;
   }
 
+  .product-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-image {
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+  }
+
+  .product-badge {
+    top: 8px;
+    left: 8px;
+    padding: 4px 6px;
+    font-size: .55rem;
+    letter-spacing: .06em;
+  }
+
   .quick-add {
-    position: static;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     transform: none;
     opacity: 1;
-    margin-top: 8px;
+    border: 0;
+    border-radius: 0 0 4px 4px;
+    padding: 11px;
+    font-size: .72rem;
+    letter-spacing: .02em;
+  }
+
+  .product-info {
+    padding: 12px 4px 4px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-name {
+    font-size: 1rem;
+  }
+
+  .product-brand {
+    font-size: .76rem;
+  }
+
+  .product-prices {
+    margin-top: auto;
+  }
+
+  .price-detal {
+    font-size: .98rem;
+  }
+
+  .price-mayor {
+    font-size: .74rem;
   }
 
   .cart-drawer {
     padding: 26px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .product-card {
+    position: relative;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 14px;
+    padding: 10px 10px 54px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transform: none;
+  }
+
+  .product-image {
+    position: static;
+    overflow: visible;
+    flex: 0 0 38%;
+    width: 38%;
+    aspect-ratio: 3 / 4;
+    border-radius: 6px;
+  }
+
+  .product-image img {
+    border-radius: 6px;
+  }
+
+  .product-badge {
+    top: 18px;
+    left: 18px;
+    padding: 4px 6px;
+    font-size: .55rem;
+    letter-spacing: .06em;
+  }
+
+  .quick-add {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    opacity: 1;
+    border: 0;
+    border-radius: 0 0 8px 8px;
+    padding: 11px;
+    font-size: .74rem;
+    letter-spacing: .03em;
+    background: var(--ink);
+  }
+
+  .product-info {
+    flex: 1;
+    padding: 4px 4px 4px 0;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .product-category {
+    font-size: .6rem;
+  }
+
+  .product-name {
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .product-brand {
+    font-size: .78rem;
+  }
+
+  .product-prices {
+    margin-top: 8px;
+    gap: 8px;
+  }
+
+  .price-detal {
+    font-size: 1.05rem;
+  }
+
+  .price-mayor {
+    font-size: .76rem;
   }
 }
 
@@ -1785,6 +1931,19 @@ body[data-route="cuenta"] .login-home-link {
   .manager-actions {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .product-grid {
+    gap: 18px 10px;
+  }
+
+  .product-name {
+    font-size: .92rem;
+  }
+
+  .quick-add {
+    padding: 9px;
+    font-size: .68rem;
   }
 }
 
