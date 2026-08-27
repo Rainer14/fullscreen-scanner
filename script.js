@@ -72,6 +72,7 @@ const categoryNames = { escolar: 'Escolar', belleza: 'Belleza', hogar: 'Hogar', 
 const routeCategories = new Set(['todos', 'escolar', 'belleza', 'hogar', 'tecnologia', 'variados']);
 const grid = document.getElementById('product-grid');
 const resultCount = document.getElementById('result-count');
+const catalogStatus = document.getElementById('catalog-status');
 const toast = document.getElementById('toast');
 
 function money(value) { return `$${value.toLocaleString('es-CO')}`; }
@@ -83,7 +84,7 @@ function renderProducts() {
   if (storeState.sort === 'low') visible.sort((first, second) => first.price - second.price);
   if (storeState.sort === 'high') visible.sort((first, second) => second.price - first.price);
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? 'producto' : 'productos'}`;
-  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.detal || product.price)}</span>${product.mayor ? `<span class="price-mayor">Mayor ${money(product.mayor)}</span>` : ''}</div></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
+  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img class="lazy-image" src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.detal || product.price)}</span>${product.mayor ? `<span class="price-mayor">Mayor ${money(product.mayor)}</span>` : ''}</div></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
 }
 
 function normalizeApiProduct(item) {
@@ -109,18 +110,32 @@ function normalizeApiProduct(item) {
 }
 
 async function loadProducts() {
-  if (!PRODUCT_API_URL) return;
+  if (!PRODUCT_API_URL) {
+    renderProducts();
+    return;
+  }
+
+  grid.setAttribute('aria-busy', 'true');
+  if (catalogStatus) catalogStatus.textContent = 'Actualizando catálogo...';
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 8000);
   try {
-    const response = await fetch(PRODUCT_API_URL);
+    const response = await fetch(PRODUCT_API_URL, { signal: controller.signal });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     const list = Array.isArray(payload) ? payload : (payload.data || payload.products || payload.result || []);
     products = list.map(normalizeApiProduct).filter((product) => product.name);
     renderProducts();
+    if (catalogStatus) catalogStatus.textContent = 'Catálogo actualizado.';
     if (adminView && !adminView.hidden) renderManagerList();
   } catch (error) {
     console.error('No se pudo cargar el catálogo desde la API:', error);
+    if (catalogStatus) catalogStatus.textContent = 'Mostrando catálogo local.';
     showToast('No se pudo conectar a la API; mostrando catálogo local.');
+  } finally {
+    window.clearTimeout(timeoutId);
+    grid.removeAttribute('aria-busy');
   }
 }
 
@@ -350,4 +365,5 @@ managerList.addEventListener('click', (event) => {
   }
 });
 
+renderProducts();
 loadProducts().finally(() => applyRoute());
