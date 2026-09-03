@@ -1,7 +1,7 @@
 export function initQrScanner({ onDetected } = {}) {
-  const btnStart = document.getElementById('btn-start');
+  const btnStart = document.getElementById('btn-scan') || document.getElementById('btn-start');
   const readerDiv = document.getElementById('reader');
-  const barcodeInput = document.getElementById('barcode');
+  const barcodeInput = document.getElementById('product-codigo-barras') || document.getElementById('barcode');
   const flashcard = document.getElementById('product-card');
   const scannerModal = document.getElementById('scanner-modal');
   const scannerClose = document.getElementById('scanner-close');
@@ -63,7 +63,7 @@ export function initQrScanner({ onDetected } = {}) {
       isScanning = false;
       currentCameraId = null;
       setControlsVisible(false);
-      btnStart.disabled = false;
+      if (btnStart) btnStart.disabled = false;
     }
   }
 
@@ -106,7 +106,7 @@ export function initQrScanner({ onDetected } = {}) {
     }
   }
 
-  btnStart.addEventListener('click', async () => {
+  btnStart?.addEventListener('click', async () => {
     if (!cameraList.length) return;
     try {
       await startCamera(currentCameraId || getPreferredCameraId(cameraList));

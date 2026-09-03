@@ -1,87 +1,97 @@
-export function initFormController({ onFormReset, onSubmit, onSuccess }) {
+const fieldMap = {
+  description: 'descripcion',
+  codigo: 'codigo',
+  categoria: 'categoria',
+  precio: 'precioDetal',
+  precioDetal: 'precioDetal',
+  precioMayor: 'precioMayor',
+  marca: 'marca',
+  origen: 'origen',
+  codigoBarras: 'codigoBarras',
+  image: 'imagen'
+};
+
+export function initFormController({ onSubmit, onFormReset, onSuccess }) {
   const form = document.getElementById('product-form');
-  const flashcard = document.getElementById('product-card');
-  const openBackButton = document.getElementById('open-back-btn');
-  const backToFrontButtons = document.querySelectorAll('#back-to-front-btn, #back-to-front-btn-copy');
+  const scanBtn = document.getElementById('btn-scan');
+  const submitBtn = document.getElementById('product-submit');
 
-  if (!form || !flashcard) return;
+  if (!form) return;
 
-  function flipCard() { flashcard.classList.add('flipped'); }
-  function unflipCard() { flashcard.classList.remove('flipped'); }
-
-  openBackButton?.addEventListener('click', flipCard);
-  backToFrontButtons.forEach((button) => button.addEventListener('click', unflipCard));
+  scanBtn?.addEventListener('click', () => {
+    const scannerModal = document.getElementById('scanner-modal');
+    if (scannerModal) {
+      scannerModal.removeAttribute('hidden');
+      requestAnimationFrame(() => scannerModal.classList.add('open'));
+    }
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     clearErrors();
 
+    const formData = {};
     let isValid = true;
+
     const requiredFields = [
-      { id: 'description', message: 'La descripción es obligatoria.' },
-      { id: 'codigo', message: 'El código es obligatorio.' },
-      { id: 'detal', message: 'El precio detal es obligatorio.' },
-      { id: 'mayor', message: 'El precio mayor es obligatorio.' }
+      { name: 'description', message: 'La descripción es obligatoria.' },
+      { name: 'codigo', message: 'El código es obligatorio.' },
+      { name: 'precio', message: 'El precio es obligatorio.' }
     ];
 
-    requiredFields.forEach(({ id, message }) => {
-      const input = document.getElementById(id);
-      if (input && input.value.trim() === '') {
+    requiredFields.forEach(({ name, message }) => {
+      const input = document.getElementById(`product-${name}`);
+      if (input && !input.value.trim()) {
         showError(input, message);
         isValid = false;
       }
     });
 
-    const barcodeField = document.getElementById('barcode');
-    const barcode = barcodeField?.value.trim() || '';
-    if (!barcode) {
-      if (barcodeField) showError(barcodeField, 'El código de barras es obligatorio.');
+    const precioField = document.getElementById('product-precio');
+    const precio = Number(precioField?.value);
+    if (precioField?.value && Number.isNaN(precio)) {
+      showError(precioField, 'El precio debe ser un número.');
       isValid = false;
-      flipCard();
     }
 
-    ['detal', 'mayor'].forEach((id) => {
-      const input = document.getElementById(id);
-      if (input && input.value.trim() !== '' && Number.isNaN(Number(input.value))) {
-        showError(input, `${id === 'detal' ? 'Precio Detal' : 'Precio Mayor'} debe ser un número.`);
-        isValid = false;
-      }
-    });
+    const precioDetalField = document.getElementById('product-precio-detal');
+    const precioMayorField = document.getElementById('product-precio-mayor');
+    if (precioDetalField?.value && Number.isNaN(Number(precioDetalField.value))) {
+      showError(precioDetalField, 'Precio Detal debe ser un número.');
+      isValid = false;
+    }
+    if (precioMayorField?.value && Number.isNaN(Number(precioMayorField.value))) {
+      showError(precioMayorField, 'Precio Mayor debe ser un número.');
+      isValid = false;
+    }
 
     if (!isValid) return;
 
-    const formData = {
-      descripcion: document.getElementById('description').value.trim(),
-      codigo: document.getElementById('codigo').value.trim(),
-      categoria: document.getElementById('categoria')?.value.trim() || '',
-      precioDetal: Number(document.getElementById('detal').value),
-      precioMayor: Number(document.getElementById('mayor').value),
-      marca: document.getElementById('marca')?.value.trim() || '',
-      origen: document.getElementById('origen')?.value.trim() || '',
-      codigoBarras: barcode
-    };
+    Object.entries(fieldMap).forEach(([htmlId, backendKey]) => {
+      const input = document.getElementById(`product-${htmlId}`);
+      if (!input) return;
+      let value = input.value.trim();
+      if (['precio', 'precioDetal', 'precioMayor'].includes(htmlId)) {
+        value = Number(value) || 0;
+      }
+      formData[backendKey] = value;
+    });
 
-    const submitButton = form.querySelector('button[type="submit"]');
-    if (submitButton) submitButton.disabled = true;
+    if (submitBtn) submitBtn.disabled = true;
 
     try {
       await onSubmit?.(formData);
       await onSuccess?.();
-      alert('Producto registrado con éxito.');
-      form.reset();
       await onFormReset?.();
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
-      alert(error.message || 'No se pudo enviar el formulario.');
     } finally {
-      if (submitButton) submitButton.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 
   function showError(inputElement, message) {
-    inputElement.style.borderColor = '#ef4444';
-    inputElement.style.backgroundColor = '#fef2f2';
-
+    inputElement.classList.add('error');
     const errorSpan = document.createElement('span');
     errorSpan.className = 'error-message';
     errorSpan.innerText = message;
@@ -90,9 +100,8 @@ export function initFormController({ onFormReset, onSubmit, onSuccess }) {
 
   function clearErrors() {
     document.querySelectorAll('.error-message').forEach((error) => error.remove());
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
-      input.style.borderColor = '';
-      input.style.backgroundColor = '';
+    document.querySelectorAll('.unified-form input, .unified-form select').forEach((input) => {
+      input.classList.remove('error');
     });
   }
 }

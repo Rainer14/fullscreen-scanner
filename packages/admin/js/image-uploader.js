@@ -1,7 +1,6 @@
 import { AI_API_URL } from '../../shared/js/api-config.js';
 
 export function initImageUploader({ onDataExtracted } = {}) {
-  const form = document.getElementById('uploadForm');
   const imageInput = document.getElementById('imageInput');
   const dropZone = document.getElementById('dropZone');
   const previewContainer = document.getElementById('previewContainer');
@@ -13,14 +12,18 @@ export function initImageUploader({ onDataExtracted } = {}) {
   const progressBar = document.getElementById('progressBar');
   const progressPercentage = document.getElementById('progressPercentage');
   const progressStatus = document.getElementById('progressStatus');
+  const toggleButton = document.getElementById('toggle-image-upload');
+  const imageUploadBody = document.getElementById('image-upload-body');
 
-  if (!form || !imageInput || !dropZone) return;
+  if (!imageInput || !dropZone) return;
 
   let selectedFile = null;
 
   function resetProgress() {
-    if (progressWrapper) progressWrapper.style.display = 'none';
-    if (progressBar) progressBar.style.width = '0%';
+    if (progressWrapper) {
+      progressWrapper.hidden = true;
+      progressBar.style.width = '0%';
+    }
     if (progressPercentage) progressPercentage.textContent = '0%';
     if (progressStatus) progressStatus.textContent = 'Subiendo...';
   }
@@ -30,49 +33,54 @@ export function initImageUploader({ onDataExtracted } = {}) {
     selectedFile = file;
     const reader = new FileReader();
     reader.onload = (event) => {
-      previewImage.src = event.target.result;
-      dropZone.style.display = 'none';
-      previewContainer.style.display = 'block';
-      submitButton.disabled = false;
+      if (previewImage) previewImage.src = event.target.result;
+      if (dropZone) dropZone.style.display = 'none';
+      if (previewContainer) previewContainer.hidden = false;
+      if (submitButton) submitButton.disabled = false;
       resetProgress();
     };
     reader.readAsDataURL(file);
   }
 
-  dropZone.addEventListener('click', () => imageInput.click());
-  ['dragenter', 'dragover'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+  dropZone?.addEventListener('click', () => imageInput.click());
+  ['dragenter', 'dragover'].forEach((eventName) => dropZone?.addEventListener(eventName, (event) => {
     event.preventDefault();
-    dropZone.classList.add('dragover');
+    dropZone?.classList.add('dragover');
   }));
-  ['dragleave', 'drop'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+  ['dragleave', 'drop'].forEach((eventName) => dropZone?.addEventListener(eventName, (event) => {
     event.preventDefault();
-    dropZone.classList.remove('dragover');
+    dropZone?.classList.remove('dragover');
   }));
-  dropZone.addEventListener('drop', (event) => selectFile(event.dataTransfer.files[0]));
-  imageInput.addEventListener('change', (event) => selectFile(event.target.files[0]));
+  dropZone?.addEventListener('drop', (event) => selectFile(event.dataTransfer.files[0]));
+  imageInput?.addEventListener('change', (event) => selectFile(event.target.files[0]));
 
-  removeButton.addEventListener('click', () => {
+  removeButton?.addEventListener('click', () => {
     selectedFile = null;
     imageInput.value = '';
-    previewImage.src = '';
-    previewContainer.style.display = 'none';
-    dropZone.style.display = 'flex';
-    submitButton.disabled = true;
+    if (previewImage) previewImage.src = '';
+    if (previewContainer) previewContainer.hidden = true;
+    if (dropZone) dropZone.style.display = 'flex';
+    if (submitButton) submitButton.disabled = true;
     resetProgress();
-    if (result) result.style.display = 'none';
+    if (result) {
+      result.style.display = 'none';
+      result.textContent = '';
+    }
   });
 
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
+  submitButton?.addEventListener('click', () => {
     if (!selectedFile) return;
 
     const formData = new FormData();
     formData.append('image', selectedFile);
-    submitButton.disabled = true;
-    removeButton.style.display = 'none';
-    if (result) result.style.display = 'none';
+    if (submitButton) submitButton.disabled = true;
+    if (removeButton) removeButton.style.display = 'none';
+    if (result) {
+      result.style.display = 'block';
+      result.textContent = '';
+    }
     resetProgress();
-    if (progressWrapper) progressWrapper.style.display = 'block';
+    if (progressWrapper) progressWrapper.hidden = false;
 
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (progressEvent) => {
@@ -83,8 +91,8 @@ export function initImageUploader({ onDataExtracted } = {}) {
       if (percentage === 100 && progressStatus) progressStatus.textContent = 'Procesando en servidor...';
     });
     xhr.addEventListener('load', () => {
-      removeButton.style.display = 'flex';
-      submitButton.disabled = false;
+      if (removeButton) removeButton.style.display = 'flex';
+      if (submitButton) submitButton.disabled = false;
       if (result) result.style.display = 'block';
       if (xhr.status >= 200 && xhr.status < 300) {
         if (progressStatus) progressStatus.textContent = 'Completado';
@@ -100,13 +108,17 @@ export function initImageUploader({ onDataExtracted } = {}) {
       }
     });
     xhr.addEventListener('error', () => {
-      removeButton.style.display = 'flex';
-      submitButton.disabled = false;
+      if (removeButton) removeButton.style.display = 'flex';
+      if (submitButton) submitButton.disabled = false;
       if (result) result.style.display = 'block';
       if (result) result.textContent = 'Error de conexión al intentar enviar la imagen.';
     });
     xhr.open('POST', AI_API_URL);
     xhr.send(formData);
+  });
+
+  toggleButton?.addEventListener('click', () => {
+    if (imageUploadBody) imageUploadBody.hidden = !imageUploadBody.hidden;
   });
 
   resetProgress();

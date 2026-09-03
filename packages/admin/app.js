@@ -12,22 +12,32 @@ const categoryNames = { escolar: 'Escolar', belleza: 'Belleza', hogar: 'Hogar', 
 const loginPage = document.getElementById('login-page');
 const accountView = document.getElementById('account-view');
 const adminView = document.getElementById('admin-view');
-const adminPanel = document.getElementById('admin-panel');
-const managerForm = document.getElementById('manager-form');
-const managerList = document.getElementById('manager-list');
+const productForm = document.getElementById('product-form');
+const productList = document.getElementById('product-list');
+const productSubmitBtn = document.getElementById('product-submit');
 
-function renderManagerList() {
+function renderProductList() {
   const products = getProducts();
-  managerList.innerHTML = products.length
-    ? products.map((product) => `<article class="manager-item"><div><p>${product.name}</p><small>${categoryNames[product.category] || product.category} · ${money(product.price)}</small></div><div class="manager-controls"><button type="button" data-edit-product="${product.id}">Modificar</button><button type="button" data-delete-product="${product.id}">Eliminar</button></div></article>`).join('')
-    : '<p class="manager-empty">Aún no hay productos en el catálogo.</p>';
+  productList.innerHTML = products.length
+    ? products.map((product) => `
+      <article class="product-item">
+        <div>
+          <p>${product.name}</p>
+          <small>${categoryNames[product.category] || product.category} · ${money(product.price)}</small>
+        </div>
+        <div class="product-controls">
+          <button type="button" data-edit-product="${product.id}">Modificar</button>
+          <button type="button" data-delete-product="${product.id}">Eliminar</button>
+        </div>
+      </article>`).join('')
+    : '<p class="product-empty">Aún no hay productos en el catálogo.</p>';
 }
 
 function openAccount() {
   accountView.hidden = false;
   adminView.hidden = false;
-  renderManagerList();
-  document.getElementById('manager-name').focus();
+  renderProductList();
+  document.getElementById('product-description')?.focus();
 }
 
 function closeAccount() {
@@ -50,16 +60,19 @@ function showDashboard() {
   openAccount();
 }
 
+function setSubmitButtonText(text) {
+  if (productSubmitBtn) productSubmitBtn.innerHTML = text;
+}
+
+function isEditing() {
+  return !!document.getElementById('product-id').value;
+}
+
 const qrScanner = initQrScanner({
   onDetected: async (decodedText) => {
     try {
-      const response = await fetch('/api/qr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: decodedText })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Error al enviar el QR');
+      const barcodeInput = document.getElementById('product-codigoBarras');
+      if (barcodeInput) barcodeInput.value = decodedText;
     } catch (error) {
       console.log('Error al enviar el QR:', error);
     }
@@ -68,27 +81,40 @@ const qrScanner = initQrScanner({
 
 initFormController({
   onSubmit: async (productData) => {
+    const id = document.getElementById('product-id').value;
+    if (id) {
+      return updateProduct(id, productData);
+    }
     return createProduct(productData);
   },
   onFormReset: async () => {
     if (qrScanner.isActive()) await qrScanner.stop();
+    if (productForm) productForm.reset();
+    const idInput = document.getElementById('product-id');
+    if (idInput) idInput.value = '';
+    setSubmitButtonText('Registrar producto <span>&rarr;</span>');
   },
   onSuccess: async () => {
     await loadProducts();
-    renderManagerList();
+    renderProductList();
+    if (isEditing()) {
+      showToast('Producto modificado con éxito.');
+    } else {
+      showToast('Producto registrado con éxito.');
+    }
+    setSubmitButtonText('Registrar producto <span>&rarr;</span>');
   }
 });
 
 initImageUploader({
   onDataExtracted: (responseData) => {
     fillProductForm(responseData);
-    document.getElementById('product-card')?.classList.remove('flipped');
+    showToast('Datos extraídos con IA. Revisa y completa los campos.');
   }
 });
 
 document.getElementById('account-close').addEventListener('click', closeAccount);
 
-// Botón para mostrar/ocultar la contraseña del login.
 const passwordToggle = document.getElementById('password-toggle');
 passwordToggle?.addEventListener('click', () => {
   const passwordField = document.getElementById('login-password');
@@ -109,7 +135,6 @@ document.getElementById('login-form').addEventListener('submit', async (event) =
   if (submitButton) submitButton.disabled = true;
 
   try {
-    // Autenticación con JWT: obtenemos el token firmado desde /api/auth/login.
     const token = await login(password);
     if (!token) {
       showToast('Credenciales de administración incorrectas.');
@@ -131,76 +156,24 @@ document.getElementById('logout-button').addEventListener('click', () => {
   showLoginPage();
 });
 
-document.getElementById('legacy-form-toggle').addEventListener('click', () => {
-  adminPanel.hidden = !adminPanel.hidden;
-});
-
-document.getElementById('back-to-front-btn-copy').addEventListener('click', () => {
-  adminPanel.hidden = true;
-});
-
-document.getElementById('manager-cancel').addEventListener('click', resetManagerForm);
-
-managerForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const id = document.getElementById('manager-id').value;
-  const name = document.getElementById('manager-name').value.trim();
-  const productData = {
-    name,
-    category: document.getElementById('manager-category').value,
-    price: Number(document.getElementById('manager-price').value),
-    image: document.getElementById('manager-image').value.trim(),
-    label: 'Nuevo'
-  };
-
-  try {
-    if (id) {
-      await updateProduct(id, productData);
-      setProducts(getProducts().map((p) => String(p.id) === String(id) ? { ...p, ...productData } : p));
-      showToast('Producto modificado');
-    } else {
-      const response = await createProduct(productData);
-      const created = await response.json().catch(() => ({}));
-      const normalized = normalizeLocalProduct({ ...productData, _id: created._id || created.id || Date.now() });
-      setProducts([...getProducts(), normalized]);
-      showToast('Producto subido al catálogo');
-    }
-    renderManagerList();
-    resetManagerForm();
-  } catch (error) {
-    console.error('Error al guardar producto:', error);
-    showToast(error.message || 'No se pudo guardar el producto.');
-  }
-});
-
-function normalizeLocalProduct(item) {
-  return {
-    id: item._id || item.id || Date.now(),
-    name: item.name,
-    category: item.category,
-    price: item.price,
-    detal: item.detal || item.price,
-    mayor: item.mayor,
-    image: item.image || '',
-    label: item.label || 'Nuevo'
-  };
-}
-
-managerList.addEventListener('click', async (event) => {
+productList.addEventListener('click', async (event) => {
   const editButton = event.target.closest('[data-edit-product]');
   const deleteButton = event.target.closest('[data-delete-product]');
 
   if (editButton) {
     const product = getProducts().find((item) => String(item.id) === String(editButton.dataset.editProduct));
     if (!product) return;
-    document.getElementById('manager-id').value = product.id;
-    document.getElementById('manager-name').value = product.name;
-    document.getElementById('manager-category').value = product.category;
-    document.getElementById('manager-price').value = product.price;
-    document.getElementById('manager-image').value = product.image;
-    document.getElementById('manager-submit').innerHTML = 'Guardar cambios <span>✓</span>';
-    document.getElementById('manager-cancel').hidden = false;
-    document.getElementById('manager-name').focus();
+    document.getElementById('product-id').value = product.id;
+    document.getElementById('product-description').value = product.name || '';
+    document.getElementById('product-categoria').value = product.category || 'variados';
+    document.getElementById('product-precio').value = product.price || '';
+    document.getElementById('product-precioDetal').value = product.precioDetal || '';
+    document.getElementById('product-precioMayor').value = product.precioMayor || '';
+    document.getElementById('product-marca').value = product.marca || '';
+    document.getElementById('product-origen').value = product.origen || '';
+    document.getElementById('product-codigoBarras').value = product.codigoBarras || '';
+    document.getElementById('product-image').value = product.image || '';
+    setSubmitButtonText('Guardar cambios <span>✓</span>');
   }
 
   if (deleteButton) {
@@ -210,7 +183,7 @@ managerList.addEventListener('click', async (event) => {
       try {
         await deleteProduct(id);
         setProducts(getProducts().filter((item) => String(item.id) !== String(id)));
-        renderManagerList();
+        renderProductList();
         showToast('Producto eliminado');
       } catch (error) {
         console.error('Error al eliminar producto:', error);
@@ -219,13 +192,6 @@ managerList.addEventListener('click', async (event) => {
     }
   }
 });
-
-function resetManagerForm() {
-  managerForm.reset();
-  document.getElementById('manager-id').value = '';
-  document.getElementById('manager-submit').innerHTML = 'Subir producto <span>+</span>';
-  document.getElementById('manager-cancel').hidden = true;
-}
 
 async function restoreSession() {
   const token = getStoredToken();
@@ -241,9 +207,9 @@ async function restoreSession() {
 }
 
 loadProducts({
-  onSuccess: () => renderManagerList(),
+  onSuccess: () => renderProductList(),
   onError: () => showToast('No se pudo conectar a la API; mostrando catálogo local.')
 });
 
-renderManagerList();
+renderProductList();
 restoreSession();

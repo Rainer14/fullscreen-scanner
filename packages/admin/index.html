@@ -71,111 +71,101 @@
               <p class="eyebrow">Panel de control</p>
               <h2 id="account-title">Gestiona tu catálogo</h2>
             </div>
-            <div class="account-heading-actions">
-              <button class="text-button" id="legacy-form-toggle" type="button">Carga avanzada</button>
-            </div>
           </div>
-          <form id="manager-form" class="manager-form">
-            <input type="hidden" id="manager-id">
-            <div class="manager-fields">
-              <label>Nombre<input id="manager-name" required></label>
-              <label>Categoría
-                <select id="manager-category" required>
+
+          <form id="product-form" class="unified-form" novalidate>
+            <input type="hidden" id="product-id">
+
+            <div class="unified-fields">
+              <div class="field-group">
+                <label for="product-description">Descripción <span class="required">*</span></label>
+                <input id="product-description" name="description" type="text" required placeholder="Nombre del producto">
+              </div>
+
+              <div class="field-group">
+                <label for="product-codigo">Código interno <span class="required">*</span></label>
+                <input id="product-codigo" name="codigo" type="text" required placeholder="Código único">
+              </div>
+
+              <div class="field-group">
+                <label for="product-categoria">Categoría <span class="required">*</span></label>
+                <select id="product-categoria" name="categoria" required>
                   <option value="escolar">Escolar</option>
                   <option value="belleza">Belleza</option>
                   <option value="hogar">Hogar</option>
                   <option value="tecnologia">Tecnología</option>
                   <option value="variados">Variados</option>
                 </select>
-              </label>
-              <label>Precio
-                <input id="manager-price" type="number" min="0" required>
-              </label>
-              <label>Imagen URL
-                <input id="manager-image" type="url" placeholder="https://..." required>
-              </label>
-            </div>
-            <div class="manager-actions">
-              <button class="primary-button" type="submit" id="manager-submit">Subir producto<span>+</span></button>
-              <button class="text-button" type="button" id="manager-cancel" hidden>Cancelar edición</button>
-            </div>
-          </form>
-          <div class="manager-list" id="manager-list"></div>
-        </div>
-      </section>
-    </main>
-
-    <section class="admin-panel" id="admin-panel" hidden aria-label="Registro de productos">
-      <div class="legacy-form-shell">
-        <div class="legacy-form-heading">
-          <div>
-            <p class="eyebrow">Carga avanzada</p>
-            <h2>Sube un producto</h2>
-            <p>Completa los datos, escanea su código o deja que la IA los extraiga desde una imagen.</p>
-          </div>
-          <button type="button" id="back-to-front-btn-copy" class="text-button">Cerrar</button>
-        </div>
-        <div class="flashcard" id="product-card">
-          <form id="product-form" class="card-face card-front">
-            <button type="button" id="open-back-btn" class="secondary-action">Rellenar con IA <span>&#10022;</span></button>
-            <div class="legacy-fields">
-              <label for="description">Descripción
-                <input id="description" name="description" required>
-              </label>
-              <label for="codigo">Código interno
-                <input id="codigo" name="codigo" required>
-              </label>
-              <label for="categoria">Categoría
-                <input id="categoria" name="categoria">
-              </label>
-              <label for="detal">Precio detal
-                <input id="detal" name="detal" type="number" min="0" step="0.01" required>
-              </label>
-              <label for="mayor">Precio mayor
-                <input id="mayor" name="mayor" type="number" min="0" step="0.01" required>
-              </label>
-              <label for="marca">Marca
-                <input id="marca" name="marca">
-              </label>
-              <label for="origen">Origen<input id="origen" name="origen">
-              </label>
-              <label for="barcode">Código de barras
-                <input id="barcode" name="barcode" required>
-              </label>
-            </div>
-            <div class="legacy-actions">
-              <button type="button" id="btn-start" class="secondary-action">Escanear código</button>
-              <button type="submit" class="primary-button">Registrar producto <span>&rarr;</span></button>
-            </div>
-          </form>
-          <div class="card-face card-back">
-            <button type="button" id="back-to-front-btn" class="text-button">&larr; Volver a datos</button>
-            <form id="uploadForm" class="image-form">
-              <div class="image-form-heading">
-                <h3>Extraer datos con IA</h3>
-                <p>Sube una foto clara de la etiqueta del producto.</p>
               </div>
-              <input type="file" id="imageInput" accept="image/*">
+
+              <div class="field-group">
+                <label for="product-precio">Precio <span class="required">*</span></label>
+                <input id="product-precio" name="precio" type="number" min="0" step="0.01" required placeholder="0.00">
+              </div>
+
+              <div class="field-group">
+                <label for="product-precioDetal">Precio Detal</label>
+                <input id="product-precioDetal" name="precioDetal" type="number" min="0" step="0.01" placeholder="0.00">
+              </div>
+
+              <div class="field-group">
+                <label for="product-precioMayor">Precio Mayor</label>
+                <input id="product-precioMayor" name="precioMayor" type="number" min="0" step="0.01" placeholder="0.00">
+              </div>
+
+              <div class="field-group">
+                <label for="product-marca">Marca</label>
+                <input id="product-marca" name="marca" type="text" placeholder="Marca">
+              </div>
+
+              <div class="field-group">
+                <label for="product-origen">Origen</label>
+                <input id="product-origen" name="origen" type="text" placeholder="País o región">
+              </div>
+
+              <div class="field-group">
+                <label for="product-codigoBarras">Código de barras</label>
+                <input id="product-codigoBarras" name="codigoBarras" type="text" placeholder="EAN / UPC">
+              </div>
+
+              <div class="field-group field-group-full">
+                <label for="product-image">Imagen URL</label>
+                <input id="product-image" name="image" type="url" placeholder="https://...">
+              </div>
+            </div>
+
+            <div class="unified-actions">
+              <button type="button" id="btn-scan" class="secondary-action">Escanear código</button>
+              <button type="submit" class="primary-button" id="product-submit">Registrar producto <span>&rarr;</span></button>
+            </div>
+          </form>
+
+          <div id="image-upload-section" class="image-upload-section">
+            <button type="button" id="toggle-image-upload" class="secondary-action">Subir imagen con IA</button>
+            <div id="image-upload-body" hidden>
+              <input type="file" id="imageInput" accept="image/*" hidden>
               <div id="dropZone" class="drop-zone">
                 <strong>Arrastra una imagen aquí</strong><span>o haz clic para seleccionar</span>
               </div>
-              <div id="previewContainer">
+              <div id="previewContainer" hidden>
                 <img id="previewImage" alt="Vista previa del producto">
                 <button type="button" id="removeBtn" aria-label="Quitar imagen">&times;</button>
               </div>
-              <div id="progressWrapper">
+              <div id="progressWrapper" hidden>
                 <div><span id="progressStatus"></span><span id="progressPercentage"></span></div>
                 <div class="progress-track">
                   <div id="progressBar"></div>
                 </div>
               </div>
-              <button type="submit" id="submitBtn" class="primary-button" disabled>Procesar imagen<span>&#10022;</span></button>
-            </form>
-            <div id="result" role="status"></div>
+              <button type="button" id="submitBtn" class="primary-button" disabled>Procesar imagen<span>&#10022;</span></button>
+              <div id="result" role="status" hidden></div>
+            </div>
           </div>
+
+          <div id="product-list" class="product-list"></div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
   </div>
 
   <section class="scanner-modal" id="scanner-modal" hidden aria-label="Escáner de código de barras">

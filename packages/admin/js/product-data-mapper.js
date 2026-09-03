@@ -2,11 +2,11 @@ const fieldAliases = {
   description: ['description', 'descripcion', 'descripción', 'name', 'nombre', 'nombreProducto', 'producto'],
   codigo: ['internalCode', 'codigoInterno', 'códigoInterno'],
   categoria: ['categoria', 'categoría', 'category'],
-  detal: ['detal', 'precioDetal', 'precio_detal', 'precio detal', 'precio', 'retailPrice', 'retail_price', 'price'],
-  mayor: ['mayor', 'precioMayor', 'precio_mayor', 'precio mayor', 'wholesalePrice', 'wholesale_price'],
+  precioDetal: ['detal', 'precioDetal', 'precio_detal', 'precio detal', 'precio', 'retailPrice', 'retail_price', 'price'],
+  precioMayor: ['mayor', 'precioMayor', 'precio_mayor', 'precio mayor', 'wholesalePrice', 'wholesale_price'],
   marca: ['marca', 'brand'],
   origen: ['origen', 'origin', 'paisOrigen', 'paísOrigen'],
-  barcode: ['barcode', 'codebar', 'codigo', 'código', 'codigoBarras', 'códigoBarras', 'codigo_de_barras', 'ean', 'upc']
+  codigoBarras: ['barcode', 'codebar', 'codigo', 'código', 'codigoBarras', 'códigoBarras', 'codigo_de_barras', 'ean', 'upc']
 };
 
 function normalizeKey(key) {
@@ -42,7 +42,18 @@ export function normalizeProductData(response) {
   );
 }
 
+const fieldPrefix = 'product-';
+
 export function fillProductForm(response, documentObject = document) {
+  const productData = normalizeProductData(response);
+  Object.entries(productData).forEach(([field, value]) => {
+    const input = documentObject.getElementById(`${fieldPrefix}${field}`);
+    if (input) input.value = value;
+  });
+  return productData;
+}
+
+export function fillProductFormFromLegacy(response, documentObject = document) {
   const productData = normalizeProductData(response);
   Object.entries(productData).forEach(([field, value]) => {
     const input = documentObject.getElementById(field);
