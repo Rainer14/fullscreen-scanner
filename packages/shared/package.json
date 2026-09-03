@@ -1,0 +1,11 @@
+{
+  "name": "@lumen/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Utilidades y estilos compartidos entre tienda y panel de administración.",
+  "type": "module",
+  "main": "js/api-config.js",
+  "scripts": {
+    "build": "echo 'Código estático, sin build necesario'"
+  }
+}

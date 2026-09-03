@@ -1,3 +1,5 @@
+import { AI_API_URL } from '../../shared/js/api-config.js';
+
 export function initImageUploader({ onDataExtracted } = {}) {
   const form = document.getElementById('uploadForm');
   const imageInput = document.getElementById('imageInput');
@@ -17,11 +19,10 @@ export function initImageUploader({ onDataExtracted } = {}) {
   let selectedFile = null;
 
   function resetProgress() {
-    progressWrapper.style.display = 'none';
-    progressBar.style.width = '0%';
-    progressBar.style.backgroundColor = 'var(--primary)';
-    progressPercentage.textContent = '0%';
-    progressStatus.textContent = 'Subiendo...';
+    if (progressWrapper) progressWrapper.style.display = 'none';
+    if (progressBar) progressBar.style.width = '0%';
+    if (progressPercentage) progressPercentage.textContent = '0%';
+    if (progressStatus) progressStatus.textContent = 'Subiendo...';
   }
 
   function selectFile(file) {
@@ -58,7 +59,7 @@ export function initImageUploader({ onDataExtracted } = {}) {
     dropZone.style.display = 'flex';
     submitButton.disabled = true;
     resetProgress();
-    result.style.display = 'none';
+    if (result) result.style.display = 'none';
   });
 
   form.addEventListener('submit', (event) => {
@@ -69,43 +70,42 @@ export function initImageUploader({ onDataExtracted } = {}) {
     formData.append('image', selectedFile);
     submitButton.disabled = true;
     removeButton.style.display = 'none';
-    result.style.display = 'none';
+    if (result) result.style.display = 'none';
     resetProgress();
-    progressWrapper.style.display = 'block';
+    if (progressWrapper) progressWrapper.style.display = 'block';
 
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (progressEvent) => {
       if (!progressEvent.lengthComputable) return;
       const percentage = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-      progressBar.style.width = `${percentage}%`;
-      progressPercentage.textContent = `${percentage}%`;
-      if (percentage === 100) progressStatus.textContent = 'Procesando en servidor...';
+      if (progressBar) progressBar.style.width = `${percentage}%`;
+      if (progressPercentage) progressPercentage.textContent = `${percentage}%`;
+      if (percentage === 100 && progressStatus) progressStatus.textContent = 'Procesando en servidor...';
     });
     xhr.addEventListener('load', () => {
       removeButton.style.display = 'flex';
       submitButton.disabled = false;
-      result.style.display = 'block';
+      if (result) result.style.display = 'block';
       if (xhr.status >= 200 && xhr.status < 300) {
-        progressBar.style.backgroundColor = 'var(--success)';
-        progressStatus.textContent = 'Completado';
+        if (progressStatus) progressStatus.textContent = 'Completado';
         try {
           const responseData = JSON.parse(xhr.responseText);
-          result.textContent = JSON.stringify(responseData, null, 2);
+          if (result) result.textContent = JSON.stringify(responseData, null, 2);
           onDataExtracted?.(responseData);
         } catch (error) {
-          result.textContent = xhr.responseText;
+          if (result) result.textContent = xhr.responseText;
         }
       } else {
-        result.textContent = `Error HTTP: ${xhr.status}`;
+        if (result) result.textContent = `Error HTTP: ${xhr.status}`;
       }
     });
     xhr.addEventListener('error', () => {
       removeButton.style.display = 'flex';
       submitButton.disabled = false;
-      result.style.display = 'block';
-      result.textContent = 'Error de conexión al intentar enviar la imagen.';
+      if (result) result.style.display = 'block';
+      if (result) result.textContent = 'Error de conexión al intentar enviar la imagen.';
     });
-    xhr.open('POST', 'https://api-gemini-ru4e.onrender.com/extract');
+    xhr.open('POST', AI_API_URL);
     xhr.send(formData);
   });
 

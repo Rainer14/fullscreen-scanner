@@ -92,7 +92,10 @@ test('MVC app preserves QR and health API contracts', async (t) => {
       environment: 'test',
       appName: 'fullscreen-potente',
       staticDirectory: require('node:path').join(__dirname, '..'),
-      indexFile: require('node:path').join(__dirname, '..', 'index.html'),
+      sharedDirectory: require('node:path').join(__dirname, '..', 'packages', 'shared'),
+      storeDirectory: require('node:path').join(__dirname, '..', 'packages', 'store'),
+      adminDirectory: require('node:path').join(__dirname, '..', 'packages', 'admin'),
+      packagesDirectory: require('node:path').join(__dirname, '..', 'packages'),
       qrDataFile: 'memory'
     },
     fileSystem,
@@ -125,5 +128,5 @@ test('MVC app preserves QR and health API contracts', async (t) => {
 
   const page = await request(server, 'GET', '/');
   assert.equal(page.statusCode, 200);
-  assert.match(page.body, /Escáner QR Inmersivo/);
+  assert.match(page.body, /Tienda Lumen/);
 });

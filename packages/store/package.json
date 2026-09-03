@@ -1,0 +1,15 @@
+{
+  "name": "@lumen/store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tienda online Lumen (frontend estático, decoupled).",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "serve": "npx http-server . -p 8080",
+    "build": "echo 'Frontend estático, sin build necesario'"
+  },
+  "dependencies": {
+    "@lumen/shared": "1.0.0"
+  }
+}

@@ -6,13 +6,8 @@ export function initFormController({ onFormReset, onSubmit, onSuccess }) {
 
   if (!form || !flashcard) return;
 
-  function flipCard() {
-    flashcard.classList.add('flipped');
-  }
-
-  function unflipCard() {
-    flashcard.classList.remove('flipped');
-  }
+  function flipCard() { flashcard.classList.add('flipped'); }
+  function unflipCard() { flashcard.classList.remove('flipped'); }
 
   openBackButton?.addEventListener('click', flipCard);
   backToFrontButtons.forEach((button) => button.addEventListener('click', unflipCard));
@@ -71,7 +66,6 @@ export function initFormController({ onFormReset, onSubmit, onSuccess }) {
 
     try {
       await onSubmit?.(formData);
-       console.log('Formulario enviado', formData);
       await onSuccess?.();
       alert('Producto registrado con éxito.');
       form.reset();

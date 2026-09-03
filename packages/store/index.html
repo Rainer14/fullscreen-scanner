@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lumen, tu tienda de objetos cotidianos bien elegidos.">
+  <title>Lumen | Objetos que hacen bien</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/styles/base.css">
+  <link rel="stylesheet" href="../shared/styles/components.css">
+  <link rel="stylesheet" href="styles/store.css">
+</head>
+<body data-section="todos">
+  <span class="sr-only">Tienda Lumen</span>
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="Lumen, inicio"><span class="brand-mark">L</span><span>Lumen</span></a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a class="nav-link active" href="#catalogo" data-nav="todos">Tienda</a>
+        <a class="nav-link" href="#catalogo" data-nav="escolar">Escolar</a>
+        <a class="nav-link" href="#catalogo" data-nav="belleza">Belleza</a>
+        <a class="nav-link" href="#catalogo" data-nav="hogar">Hogar</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button" id="search-toggle" aria-label="Buscar productos" title="Buscar">&#8981;</button>
+        <button class="bag-button" id="cart-toggle">
+          <span class="sr-only">Abrir carrito, </span>
+          Bolsa<span id="cart-count" aria-hidden="true">0</span>
+          <span class="sr-only" id="cart-count-sr"> productos</span>
+        </button>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir men&#250;" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true" inert>
+    <div class="mobile-menu-inner">
+      <p class="eyebrow">Explora Lumen</p>
+      <nav aria-label="Navegaci&#243;n m&#243;vil">
+        <a class="mobile-nav-link" href="#catalogo" data-nav="todos">Tienda <span>&#8599;</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="escolar">Escolar <span>&#8599;</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="belleza">Belleza <span>&#8599;</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="hogar">Hogar <span>&#8599;</span></a>
+        <a class="mobile-nav-link" href="#catalogo" data-nav="tecnologia">Tecnolog&#237;a <span>&#8599;</span></a>
+      </nav>
+      <p class="mobile-menu-note">Objetos &#250;tiles para d&#237;as con intenci&#243;n.</p>
+    </div>
+  </div>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Colecci&#243;n de temporada &middot; 2026</p>
+        <h1 id="hero-title">Objetos que hacen bien.</h1>
+        <p class="hero-text">Una selecci&#243;n de piezas &#250;tiles, bonitas y hechas para acompa&#241;ar tus d&#237;as.</p>
+        <a class="primary-button" href="#catalogo">Explorar selecci&#243;n <span aria-hidden="true">&#8599;</span></a>
+      </div>
+      <div class="hero-art" aria-label="Composici&#243;n de productos Lumen" role="img">
+        <div class="hero-note">Elegido<br><strong>para ti</strong></div>
+        <div class="hero-orbit orbit-one"></div>
+        <div class="hero-orbit orbit-two"></div>
+        <div class="hero-object"><span>LUMEN</span></div>
+      </div>
+    </section>
+    <section class="catalog-section" id="catalogo">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="#inicio">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Tienda</span>
+      </nav>
+      <div class="catalog-header">
+        <h1 class="catalog-title" id="catalog-title">Todos</h1>
+        <p id="result-count" class="result-count"></p>
+      </div>
+      <p id="catalog-status" class="catalog-status" role="status" aria-live="polite"></p>
+      <div class="refine-bar">
+        <button class="refine-toggle" id="filter-toggle" aria-expanded="false" aria-controls="filter-sidebar">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+          Refinar
+          <span class="filter-count" id="filter-count" hidden></span>
+        </button>
+        <div class="refine-right">
+          <label class="sort-label">
+            <span class="sr-only">Ordenar por</span>
+            <select id="sort-select" aria-label="Ordenar productos">
+              <option value="featured">Destacados</option>
+              <option value="low">Precio: menor a mayor</option>
+              <option value="high">Precio: mayor a menor</option>
+              <option value="az">Nombre: A-Z</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="catalog-content">
+        <aside class="filter-sidebar" id="filter-sidebar" aria-label="Filtros">
+          <div class="filter-sidebar-header">
+            <h3>Filtros</h3>
+            <button class="filter-close" id="filter-close" aria-label="Cerrar filtros">&times;</button>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Categor&#237;a</h4>
+            <div class="filter-options" id="category-filters">
+              <label class="filter-option"><input type="radio" name="filter-category" value="todos" checked> <span>Todos</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="escolar"> <span>Escolar</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="belleza"> <span>Belleza</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="hogar"> <span>Hogar</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="tecnologia"> <span>Tecnolog&#237;a</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="variados"> <span>Variados</span></label>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Precio</h4>
+            <div class="filter-options" id="price-filters">
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="0-20"> <span>Hasta $20</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="20-50"> <span>$20 &ndash; $50</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="50-100"> <span>$50 &ndash; $100</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="100+"> <span>M&#225;s de $100</span></label>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Marca</h4>
+            <div class="filter-options" id="brand-filters"></div>
+          </div>
+          <div class="filter-actions">
+            <button class="filter-clear" id="filter-clear" type="button">Limpiar todo</button>
+            <button class="filter-apply" id="filter-apply" type="button">Aplicar filtros</button>
+          </div>
+        </aside>
+        <div class="filter-overlay" id="filter-overlay"></div>
+        <div class="catalog-main">
+          <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <section class="pdp" id="product-detail" hidden aria-labelledby="pdp-title">
+    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+      <a href="#inicio">Inicio</a><span aria-hidden="true">/</span><a href="#catalogo">Tienda</a><span aria-hidden="true">/</span><span id="pdp-crumb-cat"></span><span aria-hidden="true">/</span><span id="pdp-crumb-name"></span>
+    </nav>
+    <div class="pdp-layout">
+      <aside class="pdp-gallery">
+        <div class="pdp-main-image"><img id="pdp-main-img" src="" alt="" loading="lazy"></div>
+        <div class="pdp-thumbs" id="pdp-thumbs" role="listbox" aria-label="Im&#225;genes del producto"></div>
+      </aside>
+      <main class="pdp-info">
+        <p class="pdp-brand" id="pdp-brand"></p>
+        <h1 class="pdp-name" id="pdp-title"></h1>
+        <div class="pdp-prices"><span class="pdp-price" id="pdp-price"></span><span class="pdp-price-mayor" id="pdp-mayor"></span></div>
+        <div class="pdp-colors" id="pdp-colors-wrap"><span class="pdp-label">Color: <strong id="pdp-color-name"></strong></span><div class="pdp-color-swatches" id="pdp-colors" role="radiogroup" aria-label="Color"></div></div>
+        <div class="pdp-sizes-wrap" id="pdp-sizes-wrap"><span class="pdp-label">Talla: <strong id="pdp-size-name"></strong></span><div class="pdp-size-buttons" id="pdp-sizes" role="radiogroup" aria-label="Talla"></div></div>
+        <button class="pdp-add-bag" id="pdp-add-bag">A&#241;adir a la Bolsa</button>
+        <button class="pdp-add-fav" id="pdp-add-fav" aria-label="A&#241;adir a favoritos"><span class="pdp-heart">&#9825;</span> A&#241;adir a Favoritos</button>
+        <div class="pdp-sections">
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="true">Descripci&#243;n <span aria-hidden="true">&minus;</span></button><div class="pdp-section-body"><p id="pdp-desc"></p></div></div>
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="true">Detalles del producto <span aria-hidden="true">&minus;</span></button><div class="pdp-section-body" id="pdp-details"></div></div>
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="false">Env&#237;o y Devoluciones <span aria-hidden="true">+</span></button><div class="pdp-section-body" hidden><p><strong>Env&#237;o est&#225;ndar:</strong> 3&ndash;5 d&#237;as h&#225;biles. Env&#237;o gratis en compras superiores a $100.</p><p><strong>Devoluciones:</strong> Aceptamos devoluciones dentro de los 30 d&#237;as posteriores a la compra. El producto debe estar sin usar y con etiquetas originales.</p></div></div>
+        </div>
+        <div class="pdp-related"><h2 class="pdp-related-title">Tambi&#233;n te puede gustar</h2><div class="pdp-related-grid" id="pdp-related-grid"></div></div>
+      </main>
+    </div>
+  </section>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Carrito de compras" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <p class="eyebrow">Tu selecci&#243;n</p>
+        <h2>Bolsa <span id="drawer-count">(0)</span></h2>
+      </div>
+      <button class="close-button" id="cart-close" aria-label="Cerrar carrito">&#215;</button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div><span>Total</span><strong id="cart-total">$0</strong></div>
+      <button class="primary-button checkout-button" id="checkout-button">Finalizar compra <span>&#8594;</span></button>
+    </div>
+  </aside>
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

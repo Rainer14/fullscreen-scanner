@@ -22,13 +22,31 @@ function createApp({
   const qrController = createQrController({ qrService });
 
   app.use(express.json());
-  app.use(express.static(appConfig.staticDirectory));
 
-  app.get('/', (req, res) => {
-    res.sendFile(path.basename(appConfig.indexFile), {
-      root: path.dirname(appConfig.indexFile)
+  // La tienda es la única URL canónica en la raíz "/"
+  if (appConfig.storeDirectory) {
+    // Redirige cualquier ruta '/store' antigua al canónico '/'
+    app.get('/store', (req, res) => res.redirect('/'));
+    app.get('/store/', (req, res) => res.redirect('/'));
+
+    // Monta el paquete de la tienda en la raíz: "/", "/app.js", "/styles/*", "/js/*"
+    app.use(express.static(appConfig.storeDirectory));
+  }
+
+  // Assets compartidos bajo "/shared/*"
+  if (appConfig.sharedDirectory) {
+    app.use('/shared', express.static(appConfig.sharedDirectory));
+  }
+
+  // Panel de administración bajo "/admin"
+  if (appConfig.adminDirectory) {
+    app.get('/admin', (req, res) => {
+      res.sendFile(path.join(appConfig.adminDirectory, 'index.html'));
     });
-  });
+    app.use('/admin', express.static(appConfig.adminDirectory));
+  }
+
+  app.use(express.static(appConfig.staticDirectory));
 
   app.use('/api', createApiRoutes({
     healthController: createHealthController({ clock }),
