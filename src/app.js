@@ -40,7 +40,10 @@ function createApp({
 
   // Panel de administración bajo "/admin"
   if (appConfig.adminDirectory) {
-    app.get('/admin', (req, res) => {
+    // "/admin" redirige a "/admin/" para que las rutas relativas resuelvan bien;
+    // "/admin/" sirve el índice. La regex distingue el slash final.
+    app.get(/^\/admin\/?$/, (req, res) => {
+      if (!req.originalUrl.endsWith('/')) return res.redirect('/admin/');
       res.sendFile(path.join(appConfig.adminDirectory, 'index.html'));
     });
     app.use('/admin', express.static(appConfig.adminDirectory));
