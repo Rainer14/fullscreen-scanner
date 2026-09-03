@@ -1,3 +1,5 @@
+import { showToast } from '../../shared/js/toast.js';
+
 const fieldMap = {
   description: 'descripcion',
   codigo: 'codigo',
@@ -121,6 +123,7 @@ export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadR
       await onFormReset?.();
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
+      showToast(error.message || 'No se pudo guardar el producto.');
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }

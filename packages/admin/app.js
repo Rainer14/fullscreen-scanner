@@ -190,7 +190,8 @@ productList.addEventListener('click', async (event) => {
     document.getElementById('product-categoria').value = product.category || 'variados';
     document.getElementById('product-precioDetal').value = product.precioDetal || '';
     document.getElementById('product-precioMayor').value = product.precioMayor || '';
-    document.getElementById('product-tasaCambio').value = product.tasaCambio || '';
+    const tasa = product.tasaCambio ? Number(product.tasaCambio) : 0;
+    document.getElementById('product-tasaCambio').value = tasa > 0 ? tasa : '';
     document.getElementById('product-margen').value = product.margen !== undefined && product.margen !== null ? product.margen : '';
     document.getElementById('product-precioDolar').value = product.precioDolar || '';
     document.getElementById('product-precioDolarTienda').value = product.precioDolarTienda || '';
@@ -198,6 +199,8 @@ productList.addEventListener('click', async (event) => {
     document.getElementById('product-origen').value = product.origen || '';
     document.getElementById('product-codigoBarras').value = product.codigoBarras || '';
     document.getElementById('product-image').value = product.image || '';
+    recalculatePrices();
+    if (tasa <= 0) fetchBcvRate();
     setSubmitButtonText('Guardar cambios <span>✓</span>');
   }
 
