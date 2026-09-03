@@ -3,7 +3,7 @@ import { initFormController } from './js/form-controller.js';
 import { initImageUploader } from './js/image-uploader.js';
 import { fillProductForm } from './js/product-data-mapper.js';
 import { initQrScanner } from './js/qr-scanner.js';
-import { getStoredToken, saveToken, clearToken, checkToken } from './js/auth.js';
+import { getStoredToken, saveToken, clearToken, checkToken, login } from './js/auth.js';
 import { showToast } from '../shared/js/toast.js';
 import { money } from '../shared/js/money.js';
 
@@ -91,20 +91,21 @@ document.getElementById('account-close').addEventListener('click', closeAccount)
 document.getElementById('login-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const passwordField = document.getElementById('login-password');
-  const token = passwordField?.value.trim() || '';
+  const password = passwordField?.value.trim() || '';
   const submitButton = event.target.querySelector('button[type="submit"]');
   if (submitButton) submitButton.disabled = true;
 
   try {
-    const valid = await checkToken(token);
-    if (!valid) {
-      showToast('Token de administración incorrecto.');
+    // Autenticación con JWT: obtenemos el token firmado desde /api/auth/login.
+    const token = await login(password);
+    if (!token) {
+      showToast('Credenciales de administración incorrectas.');
       return;
     }
     saveToken(token);
     showDashboard();
   } catch (error) {
-    console.error('Error al verificar el token:', error);
+    console.error('Error al iniciar sesión:', error);
     showToast('No se pudo conectar con el servidor.');
   } finally {
     if (submitButton) submitButton.disabled = false;

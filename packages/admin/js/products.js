@@ -11,9 +11,9 @@ export function getProducts() { return products; }
 
 export function setProducts(list) { products = list; }
 
-// Headers para las peticiones de escritura: incluyen el token de administración.
+// Headers para las peticiones de escritura: incluyen el JWT de administración.
 function authHeaders() {
-  return { 'Content-Type': 'application/json', 'x-admin-token': getAuthToken() };
+  return { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` };
 }
 
 // Carga el catálogo (lectura pública) y normaliza cada producto.
@@ -77,7 +77,7 @@ export async function updateProduct(id, productData) {
 export async function deleteProduct(id) {
   const response = await fetch(`${PRODUCT_API_URL}/${id}`, {
     method: 'DELETE',
-    headers: { 'x-admin-token': getAuthToken() }
+    headers: { Authorization: `Bearer ${getAuthToken()}` }
   });
   if (!response.ok) {
     let message = `Error HTTP: ${response.status}`;

@@ -13,7 +13,8 @@ const server = app.listen(appConfig.port, appConfig.host, () => {
   console.log(`- GET /api/health`);
   console.log(`- GET /api/info`);
   console.log(`- GET /api/products      (lectura pública, tienda)`);
-  console.log(`- POST|PUT|DELETE /api/products (escritura protegida, admin)`);
+  console.log(`- POST|PUT|DELETE /api/products (escritura protegida, admin con JWT)`);
+  console.log(`- POST /api/auth/login   (obtiene un JWT para el admin)`);
   console.log(`- POST /api/qr`);
   console.log(`- GET /api/qr/latest`);
 });

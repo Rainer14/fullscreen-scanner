@@ -103,7 +103,9 @@ test('MVC app preserves QR and health API contracts', async (t) => {
       packagesDirectory: require('node:path').join(__dirname, '..', 'packages'),
       qrDataFile: 'memory',
       dbFile: ':memory:',
-      adminToken: 'test-token'
+      adminToken: 'test-token',
+      jwtSecret: 'test-secret',
+      jwtExpiresIn: '1h'
     },
     fileSystem,
     clock: () => new Date('2026-08-21T12:00:00.000Z'),
@@ -152,7 +154,9 @@ test('product API separates read (public) and write (admin-token protected) oper
       packagesDirectory: require('node:path').join(__dirname, '..', 'packages'),
       qrDataFile: 'memory',
       dbFile: ':memory:',
-      adminToken: 'secret-123'
+      adminToken: 'secret-123',
+      jwtSecret: 'test-secret',
+      jwtExpiresIn: '1h'
     },
     clock: () => new Date('2026-08-21T12:00:00.000Z'),
     sqliteDb: db
@@ -179,6 +183,16 @@ test('product API separates read (public) and write (admin-token protected) oper
   assert.equal(empty.statusCode, 200);
   assert.deepEqual(empty.json.data, []);
 
+  // Login con contraseña incorrecta: 401
+  const badLogin = await request(server, 'POST', '/api/auth/login', { password: 'mal' });
+  assert.equal(badLogin.statusCode, 401);
+
+  // Login con credenciales correctas: entrega un JWT
+  const loginRes = await request(server, 'POST', '/api/auth/login', { password: 'secret-123' });
+  assert.equal(loginRes.statusCode, 200);
+  const jwt = loginRes.json.token;
+  assert.ok(jwt && jwt.includes('.'), 'debe devolver un JWT');
+
   // Escritura SIN token: 401
   const denied = await request(server, 'POST', '/api/products', product);
   assert.equal(denied.statusCode, 401);
@@ -186,14 +200,14 @@ test('product API separates read (public) and write (admin-token protected) oper
   const deniedDelete = await request(server, 'DELETE', '/api/products/1');
   assert.equal(deniedDelete.statusCode, 401);
 
-  // Validación de token
+  // Validación del JWT
   const authCheckBad = await request(server, 'GET', '/api/auth/check');
   assert.equal(authCheckBad.statusCode, 401);
-  const authCheckOk = await request(server, 'GET', '/api/auth/check', null, { 'x-admin-token': 'secret-123' });
+  const authCheckOk = await request(server, 'GET', '/api/auth/check', null, { Authorization: `Bearer ${jwt}` });
   assert.equal(authCheckOk.statusCode, 200);
 
-  // Escritura CON token: 201
-  const created = await request(server, 'POST', '/api/products', product, { 'x-admin-token': 'secret-123' });
+  // Escritura CON JWT: 201
+  const created = await request(server, 'POST', '/api/products', product, { Authorization: `Bearer ${jwt}` });
   assert.equal(created.statusCode, 201);
   assert.equal(created.json.data.name, 'Cuaderno A5');
   const id = created.json.data.id;
@@ -210,13 +224,13 @@ test('product API separates read (public) and write (admin-token protected) oper
   assert.equal(single.statusCode, 200);
   assert.equal(single.json.data.codigo, 'CUAD-A5');
 
-  // PUT con token: modifica
-  const updated = await request(server, 'PUT', `/api/products/${id}`, { ...product, precioDetal: 150 }, { 'x-admin-token': 'secret-123' });
+  // PUT con JWT: modifica
+  const updated = await request(server, 'PUT', `/api/products/${id}`, { ...product, precioDetal: 150 }, { Authorization: `Bearer ${jwt}` });
   assert.equal(updated.statusCode, 200);
   assert.equal(updated.json.data.precioDetal, 150);
 
-  // DELETE con token: elimina
-  const deleted = await request(server, 'DELETE', `/api/products/${id}`, null, { 'x-admin-token': 'secret-123' });
+  // DELETE con JWT: elimina
+  const deleted = await request(server, 'DELETE', `/api/products/${id}`, null, { Authorization: `Bearer ${jwt}` });
   assert.equal(deleted.statusCode, 200);
   assert.equal(deleted.json.deleted, true);
 

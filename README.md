@@ -64,19 +64,40 @@ La tienda tiene una **única URL canónica** (`/`). La antigua ruta `/store` red
 - `/admin` → panel de administración
 - `/api/health` → estado del servidor
 - `/api/info` → información de la app
+- `/api/auth/login` → inicia sesión del admin (`POST` con `{ "password": "..." }`) y devuelve un **JWT**
+- `/api/auth/check` → valida que un **JWT** siga siendo válido
+- `/api/products` → lista de productos (lectura pública, la usa la tienda)
+- `/api/products/:id` → detalle de un producto (lectura pública)
+- `POST /api/products` → crea un producto (solo admin, requiere JWT)
+- `PUT /api/products/:id` → modifica un producto (solo admin, requiere JWT)
+- `DELETE /api/products/:id` → elimina un producto (solo admin, requiere JWT)
 - `/api/qr` → registra un código QR mediante `POST` con `{ "text": "..." }`
 - `/api/qr/latest` → devuelve el último código QR registrado
+
+## Autenticación (JWT)
+
+El panel de administración usa **JWT** para proteger todas las operaciones de **escritura**
+sobre la base de datos (`POST`, `PUT`, `DELETE`). La tienda solo puede **leer** (`GET`).
+
+Flujo:
+
+1. `POST /api/auth/login` con `{ "password": "..." }`. Si la contraseña coincide con
+   `ADMIN_TOKEN`, el servidor devuelve un JWT firmado (`{ "ok": true, "token": "..." }`).
+2. Las peticiones de escritura envían el JWT en la cabecera `Authorization: Bearer <jwt>`.
+3. `/api/auth/check` valida si el JWT sigue activo (se usa para restablecer la sesión del admin).
 
 ## Arquitectura backend
 
 Dentro de `src/`:
 
-- `config/` configura rutas y entorno.
-- `models/` encapsula la persistencia en `qr-data.json`.
-- `services/` contiene las reglas de negocio del QR.
+- `config/` configura rutas, entorno, base de datos y claves JWT.
+- `db/` abre y cierra la conexión SQLite.
+- `models/` encapsula la persistencia: `qrRepository` (JSON) y `productRepository` (SQLite).
+- `services/` contiene las reglas de negocio del QR, productos y autenticación JWT.
 - `controllers/` traduce solicitudes HTTP a respuestas.
+- `middleware/` contiene el middleware que verifica el JWT en operaciones de escritura.
 - `routes/` declara los endpoints.
-- `app.js` compone Express sin abrir el puerto; `server.js` solo inicia el servidor.
+- `app.js` compone Express sin abrir el puerto; `server.js` solo inicia el servidor y cierra la DB en el apagado.
 
 Pruebas:
 
@@ -104,7 +125,7 @@ en un host distinto al backend, configura aquí la URL completa del backend (p. 
 
 La base de datos es **SQLite** (archivo local `data/lumen.db`, ignorado por git). La tienda
 solo puede **leer** productos (`GET`); el panel de administración puede **crear, modificar y
-eliminar** (`POST`, `PUT`, `DELETE`) enviando el token en la cabecera `x-admin-token`.
+eliminar** (`POST`, `PUT`, `DELETE`) enviando un **JWT** en la cabecera `Authorization: Bearer`.
 
 El `POST` del admin acepta los campos `descripcion`, `codigo`, `categoria`, `precioDetal`,
 `precioMayor`, `marca`, `origen` y `codigoBarras`. Los precios se envían como números. La
@@ -114,5 +135,10 @@ respuesta debe tener un estado HTTP `2xx` para limpiar el formulario.
 
 - Driver: `sqlite3` (node-sqlite3).
 - Archivo por defecto: `data/lumen.db` (se crea automáticamente al iniciar).
-- Variables: `ADMIN_TOKEN` (token de administración, por defecto `lumen-admin`).
+- Variables de entorno:
+  - `ADMIN_TOKEN` → contraseña de administración (por defecto `lumen-admin`).
+  - `JWT_SECRET` → secreto para firmar los JWT (por defecto `lumen-jwt-secret`).
+  - `JWT_EXPIRES_IN` → duración del JWT (por defecto `24h`).
 - Los tests usan una base en memoria (`:memory:`) para aislar el estado.
+
+> ⚠️ En producción cambia `ADMIN_TOKEN` y `JWT_SECRET` por valores seguros.

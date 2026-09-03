@@ -16,6 +16,9 @@ function createAppConfig(env = process.env) {
     // Ruta de la base de datos SQLite y token de administración para las escrituras.
     dbFile: path.join(__dirname, '..', '..', 'data', 'lumen.db'),
     adminToken: env.ADMIN_TOKEN || 'lumen-admin',
+    // Secreto y duración para los JWT de administración (autenticación).
+    jwtSecret: env.JWT_SECRET || 'lumen-jwt-secret',
+    jwtExpiresIn: env.JWT_EXPIRES_IN || '24h',
     packagesDirectory: path.join(__dirname, '..', '..', 'packages'),
     sharedDirectory: path.join(__dirname, '..', '..', 'packages', 'shared'),
     storeDirectory: path.join(__dirname, '..', '..', 'packages', 'store'),

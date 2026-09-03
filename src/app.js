@@ -6,10 +6,12 @@ const { createQrRepository } = require('./models/qrRepository');
 const { createProductRepository } = require('./models/productRepository');
 const { createQrService } = require('./services/qrService');
 const { createProductService } = require('./services/productService');
+const { createAuthService } = require('./services/authService');
 const { createHealthController } = require('./controllers/healthController');
 const { createInfoController } = require('./controllers/infoController');
 const { createQrController } = require('./controllers/qrController');
 const { createProductController } = require('./controllers/productController');
+const { createAuthController } = require('./controllers/authController');
 const { createApiRoutes } = require('./routes/apiRoutes');
 const { createAuthMiddleware } = require('./middleware/auth');
 
@@ -32,7 +34,16 @@ function createApp({
   const productRepository = createProductRepository({ sqliteDb: db });
   const productService = createProductService({ repository: productRepository });
   const productController = createProductController({ service: productService });
-  const requireAdminToken = createAuthMiddleware({ adminToken: appConfig.adminToken });
+
+  // Autenticación con JWT: servicio que firma/verifica tokens, controlador de login
+  // y middleware que protege las operaciones de escritura del admin.
+  const authService = createAuthService({
+    adminToken: appConfig.adminToken,
+    jwtSecret: appConfig.jwtSecret,
+    jwtExpiresIn: appConfig.jwtExpiresIn
+  });
+  const authController = createAuthController({ authService });
+  const requireAdminToken = createAuthMiddleware({ authService });
 
   app.locals.database = db;
 
@@ -71,6 +82,7 @@ function createApp({
     infoController: createInfoController({ appConfig }),
     qrController,
     productController,
+    authController,
     requireAdminToken
   }));
 

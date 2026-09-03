@@ -1,21 +1,24 @@
-// Autenticación del panel de administración.
-// Protege las operaciones de escritura de la base de datos exigiendo un token (ADMIN_TOKEN).
-function createAuthMiddleware({ adminToken }) {
-  // Sin token configurado, no se exige autenticación.
-  if (!adminToken) {
-    return (req, res, next) => next();
-  }
+// Autenticación del panel de administración con JWT.
+// Protege las operaciones de escritura de la base de datos exigiendo un JWT válido.
 
-  // Middleware: valida el token enviado en la cabecera antes de continuar.
+// Middleware: verifica el JWT enviado en "Authorization: Bearer <token>" y,
+// si es válido, continúa; en caso contrario responde 401.
+function createAuthMiddleware({ authService }) {
   return function requireAdminToken(req, res, next) {
     const header = req.headers.authorization || '';
-    const provided = header.startsWith('Bearer ') ? header.slice(7) : (req.headers['x-admin-token'] || '');
-    const expected = String(adminToken || '');
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
 
-    if (!expected || provided !== expected) {
-      return res.status(401).json({ ok: false, message: 'No autorizado. Se requiere token de administración.' });
+    if (!token) {
+      return res.status(401).json({ ok: false, message: 'No autorizado. Se requiere un token de acceso.' });
     }
-    next();
+
+    // Firmamos y verificamos el JWT contra el secreto configurado.
+    try {
+      authService.verify(token);
+      return next();
+    } catch (error) {
+      return res.status(401).json({ ok: false, message: 'Token de acceso inválido o expirado.' });
+    }
   };
 }
 
