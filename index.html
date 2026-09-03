@@ -145,6 +145,32 @@
       </div>
     </section>
   </main>
+  <section class="pdp" id="product-detail" hidden aria-labelledby="pdp-title">
+    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+      <a href="#inicio">Inicio</a><span aria-hidden="true">/</span><a href="#catalogo">Tienda</a><span aria-hidden="true">/</span><span id="pdp-crumb-cat"></span><span aria-hidden="true">/</span><span id="pdp-crumb-name"></span>
+    </nav>
+    <div class="pdp-layout">
+      <aside class="pdp-gallery">
+        <div class="pdp-main-image"><img id="pdp-main-img" src="" alt="" loading="lazy"></div>
+        <div class="pdp-thumbs" id="pdp-thumbs" role="listbox" aria-label="Imágenes del producto"></div>
+      </aside>
+      <main class="pdp-info">
+        <p class="pdp-brand" id="pdp-brand"></p>
+        <h1 class="pdp-name" id="pdp-title"></h1>
+        <div class="pdp-prices"><span class="pdp-price" id="pdp-price"></span><span class="pdp-price-mayor" id="pdp-mayor"></span></div>
+        <div class="pdp-colors" id="pdp-colors-wrap"><span class="pdp-label">Color: <strong id="pdp-color-name"></strong></span><div class="pdp-color-swatches" id="pdp-colors" role="radiogroup" aria-label="Color"></div></div>
+        <div class="pdp-sizes-wrap" id="pdp-sizes-wrap"><span class="pdp-label">Talla: <strong id="pdp-size-name"></strong></span><div class="pdp-size-buttons" id="pdp-sizes" role="radiogroup" aria-label="Talla"></div></div>
+        <button class="pdp-add-bag" id="pdp-add-bag">Añadir a la Bolsa</button>
+        <button class="pdp-add-fav" id="pdp-add-fav" aria-label="Añadir a favoritos"><span class="pdp-heart">♡</span> Añadir a Favoritos</button>
+        <div class="pdp-sections">
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="true">Descripción <span aria-hidden="true">−</span></button><div class="pdp-section-body"><p id="pdp-desc"></p></div></div>
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="true">Detalles del producto <span aria-hidden="true">−</span></button><div class="pdp-section-body" id="pdp-details"></div></div>
+          <div class="pdp-section"><button class="pdp-section-header" aria-expanded="false">Envío y Devoluciones <span aria-hidden="true">+</span></button><div class="pdp-section-body" hidden><p><strong>Envío estándar:</strong> 3–5 días hábiles. Envío gratis en compras superiores a $100.</p><p><strong>Devoluciones:</strong> Aceptamos devoluciones dentro de los 30 días posteriores a la compra. El producto debe estar sin usar y con etiquetas originales.</p></div></div>
+        </div>
+        <div class="pdp-related"><h2 class="pdp-related-title">También te puede gustar</h2><div class="pdp-related-grid" id="pdp-related-grid"></div></div>
+      </main>
+    </div>
+  </section>
   <section class="login-page" id="login-page" hidden aria-labelledby="login-page-title">
     <div class="login-shell">
       <aside class="login-aside">
