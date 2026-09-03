@@ -2,7 +2,6 @@ const fieldMap = {
   description: 'descripcion',
   codigo: 'codigo',
   categoria: 'categoria',
-  precio: 'precioDetal',
   precioDetal: 'precioDetal',
   precioMayor: 'precioMayor',
   tasaCambio: 'tasaCambio',
@@ -66,8 +65,7 @@ export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadR
 
     const requiredFields = [
       { name: 'description', message: 'La descripción es obligatoria.' },
-      { name: 'codigo', message: 'El código es obligatorio.' },
-      { name: 'precio', message: 'El precio es obligatorio.' }
+      { name: 'precioDetal', message: 'El precio es obligatorio.' }
     ];
 
     requiredFields.forEach(({ name, message }) => {
@@ -77,13 +75,6 @@ export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadR
         isValid = false;
       }
     });
-
-    const precioField = document.getElementById('product-precio');
-    const precio = Number(precioField?.value);
-    if (precioField?.value && Number.isNaN(precio)) {
-      showError(precioField, 'El precio debe ser un número.');
-      isValid = false;
-    }
 
     const precioDetalField = document.getElementById('product-precioDetal');
     const precioMayorField = document.getElementById('product-precioMayor');
@@ -116,7 +107,7 @@ export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadR
       const input = document.getElementById(`product-${htmlId}`);
       if (!input) return;
       let value = input.value.trim();
-      if (['precio', 'precioDetal', 'precioMayor', 'margen', 'tasaCambio', 'precioDolar', 'precioDolarTienda'].includes(htmlId)) {
+      if (['precioDetal', 'precioMayor', 'margen', 'tasaCambio', 'precioDolar', 'precioDolarTienda'].includes(htmlId)) {
         value = Number(value) || 0;
       }
       formData[backendKey] = value;

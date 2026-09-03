@@ -83,28 +83,24 @@
               </div>
 
               <div class="field-group">
-                <label for="product-codigo">Código interno <span class="required">*</span></label>
-                <input id="product-codigo" name="codigo" type="text" required placeholder="Código único">
+                <label for="product-codigo">Código interno</label>
+                <input id="product-codigo" name="codigo" type="text" placeholder="Código único">
               </div>
 
               <div class="field-group">
-                <label for="product-categoria">Categoría <span class="required">*</span></label>
-                <select id="product-categoria" name="categoria" required>
-                  <option value="escolar">Escolar</option>
-                  <option value="belleza">Belleza</option>
-                  <option value="hogar">Hogar</option>
-                  <option value="tecnologia">Tecnología</option>
-                  <option value="variados">Variados</option>
-                </select>
+                <label for="product-categoria">Categoría</label>
+                <input id="product-categoria" name="categoria" type="text" list="categoria-options" placeholder="Escolar, belleza, hogar..." value="variados">
+                <datalist id="categoria-options">
+                  <option value="escolar"></option>
+                  <option value="belleza"></option>
+                  <option value="hogar"></option>
+                  <option value="tecnologia"></option>
+                  <option value="variados"></option>
+                </datalist>
               </div>
 
               <div class="field-group">
-                <label for="product-precio">Precio <span class="required">*</span></label>
-                <input id="product-precio" name="precio" type="number" min="0" step="0.01" required placeholder="0.00">
-              </div>
-
-              <div class="field-group">
-                <label for="product-precioDetal">Precio Detal</label>
+                <label for="product-precioDetal">Precio Detal <span class="required">*</span></label>
                 <input id="product-precioDetal" name="precioDetal" type="number" min="0" step="0.01" placeholder="0.00">
               </div>
 

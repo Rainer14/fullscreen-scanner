@@ -96,6 +96,15 @@ function fromRow(row) {
   };
 }
 
+// Columnas que pueden faltar en bases creadas antes de que se añadiera el
+// esquema de precios con tasa BCV. Se aplican como migración ALTER TABLE.
+const MIGRATION_COLUMNS = [
+  { name: 'precioDolar', definition: 'REAL NOT NULL DEFAULT 0' },
+  { name: 'tasaCambio', definition: 'REAL NOT NULL DEFAULT 0' },
+  { name: 'margen', definition: 'REAL NOT NULL DEFAULT 0' },
+  { name: 'precioDolarTienda', definition: 'REAL NOT NULL DEFAULT 0' }
+];
+
 function initSchema(sqliteDb) {
   sqliteDb.serialize(() => {
     sqliteDb.run(`
@@ -123,7 +132,20 @@ function initSchema(sqliteDb) {
         galeria TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       )
-    `);
+    `, (err) => {
+      if (err) return;
+      // Migración: agrega las columnas nuevas si la tabla ya existía con un
+      // esquema anterior (CREATE TABLE IF NOT EXISTS no altera tablas creadas).
+      sqliteDb.all('PRAGMA table_info(productos)', (pragmaErr, rows) => {
+        if (pragmaErr) return;
+        const existing = new Set((rows || []).map((row) => row.name));
+        MIGRATION_COLUMNS.forEach(({ name, definition }) => {
+          if (!existing.has(name)) {
+            sqliteDb.run(`ALTER TABLE productos ADD COLUMN ${name} ${definition}`, () => {});
+          }
+        });
+      });
+    });
   });
 }
 

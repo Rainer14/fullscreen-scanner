@@ -1,25 +1,21 @@
 function createProductService({ repository }) {
   function validateCreate(product) {
     const name = String(product.descripcion ?? product.name ?? '').trim();
-    const codigo = String(product.codigo ?? '').trim();
     if (!name) {
       const error = new Error('La descripción del producto es obligatoria.');
       error.statusCode = 400;
       throw error;
     }
-    if (!codigo) {
-      const error = new Error('El código del producto es obligatorio.');
-      error.statusCode = 400;
-      throw error;
-    }
-    const tasaCambio = Number(product.tasaCambio) || 0;
-    if (tasaCambio <= 0) {
+
+    const tasaRaw = product.tasaCambio;
+    if (tasaRaw !== undefined && tasaRaw !== null && tasaRaw !== '' && !(Number(tasaRaw) > 0)) {
       const error = new Error('La tasa de cambio del BCV debe ser mayor a 0.');
       error.statusCode = 400;
       throw error;
     }
-    const margen = Number(product.margen);
-    if (isNaN(margen) || margen < 0) {
+
+    const margenRaw = product.margen;
+    if (margenRaw !== undefined && margenRaw !== null && margenRaw !== '' && !(Number(margenRaw) >= 0)) {
       const error = new Error('El margen de ganancia debe ser un número mayor o igual a 0.');
       error.statusCode = 400;
       throw error;

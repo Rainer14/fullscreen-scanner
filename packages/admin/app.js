@@ -188,7 +188,6 @@ productList.addEventListener('click', async (event) => {
     document.getElementById('product-id').value = product.id;
     document.getElementById('product-description').value = product.name || '';
     document.getElementById('product-categoria').value = product.category || 'variados';
-    document.getElementById('product-precio').value = product.price || '';
     document.getElementById('product-precioDetal').value = product.precioDetal || '';
     document.getElementById('product-precioMayor').value = product.precioMayor || '';
     document.getElementById('product-tasaCambio').value = product.tasaCambio || '';
