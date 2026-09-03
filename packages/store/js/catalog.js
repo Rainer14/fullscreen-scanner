@@ -1,3 +1,5 @@
+import { money } from '../../shared/js/money.js';
+
 const categoryNames = {
   escolar: 'Escolar',
   belleza: 'Belleza',
@@ -17,7 +19,7 @@ export function renderProducts(products, storeState, grid, resultCount, filterCo
     })
     .filter((product) => {
       if (!storeState.priceRanges.length) return true;
-      const price = product.detal || product.price;
+      const price = product.price || product.detal || 0;
       return storeState.priceRanges.some((range) => {
         if (range === '100+') return price >= 100;
         const [min, max] = range.split('-').map(Number);
@@ -29,8 +31,8 @@ export function renderProducts(products, storeState, grid, resultCount, filterCo
       return storeState.brands.includes(product.marca);
     });
 
-  if (storeState.sort === 'low') visible.sort((a, b) => (a.detal || a.price) - (b.detal || b.price));
-  if (storeState.sort === 'high') visible.sort((a, b) => (b.detal || b.price) - (a.detal || a.price));
+  if (storeState.sort === 'low') visible.sort((a, b) => (a.price || a.detal || 0) - (b.price || b.detal || 0));
+  if (storeState.sort === 'high') visible.sort((a, b) => (b.price || b.detal || 0) - (a.price || a.detal || 0));
   if (storeState.sort === 'az') visible.sort((a, b) => a.name.localeCompare(b.name));
 
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? 'producto' : 'productos'}`;
@@ -47,7 +49,7 @@ export function renderProducts(products, storeState, grid, resultCount, filterCo
   }
 
   grid.innerHTML = visible.length
-    ? visible.map((product) => `<article class="product-card" data-id="${product.id}"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img class="lazy-image" src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${(product.detal || product.price).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>${product.mayor ? `<span class="price-mayor">Mayor ${product.mayor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>` : ''}</div></div></article>`).join('')
+    ? visible.map((product) => `<article class="product-card" data-id="${product.id}"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img class="lazy-image" src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.price)}</span></div></div></article>`).join('')
     : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
 }
 

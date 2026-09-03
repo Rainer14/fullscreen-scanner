@@ -21,8 +21,7 @@ export function renderProductDetail(products, productId) {
   document.getElementById('pdp-crumb-name').textContent = product.name;
   document.getElementById('pdp-brand').textContent = product.marca || 'Lumen';
   document.getElementById('pdp-title').textContent = product.name;
-  document.getElementById('pdp-price').textContent = money(product.detal || product.price);
-  document.getElementById('pdp-mayor').textContent = product.mayor ? `Mayor ${money(product.mayor)}` : '';
+  document.getElementById('pdp-price').textContent = money(product.price);
   document.getElementById('pdp-desc').textContent = product.description || 'Este producto no tiene descripción disponible.';
 
   const details = [];
@@ -119,7 +118,7 @@ export function renderPdpRelated(products, product) {
         <span class="product-category">${categoryNames[p.category] || p.category}</span>
         <h3 class="product-name">${p.name}</h3>
         ${p.marca ? `<p class="product-brand">${p.marca}</p>` : ''}
-        <div class="product-prices"><span class="price-detal">${money(p.detal || p.price)}</span></div>
+        <div class="product-prices"><span class="price-detal">${money(p.price)}</span></div>
       </div>
     </article>`).join('');
   gridEl.querySelectorAll('.product-card').forEach((card) => {
