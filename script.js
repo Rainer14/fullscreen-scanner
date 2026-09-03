@@ -67,24 +67,51 @@ let products = [
   { id: 8, name: 'Taza Terra', category: 'variados', label: 'Lumen', price: 22, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=700&q=80' }
 ];
 
-const storeState = { category: 'todos', query: '', sort: 'featured', cart: [] };
+const storeState = { category: 'todos', query: '', sort: 'featured', cart: [], priceRanges: [], brands: [] };
 const categoryNames = { escolar: 'Escolar', belleza: 'Belleza', hogar: 'Hogar', tecnologia: 'Tecnología', variados: 'Variados' };
 const routeCategories = new Set(['todos', 'escolar', 'belleza', 'hogar', 'tecnologia', 'variados']);
 const grid = document.getElementById('product-grid');
 const resultCount = document.getElementById('result-count');
 const catalogStatus = document.getElementById('catalog-status');
 const toast = document.getElementById('toast');
+const filterSidebar = document.getElementById('filter-sidebar');
+const filterOverlay = document.getElementById('filter-overlay');
+const filterToggle = document.getElementById('filter-toggle');
+const filterClose = document.getElementById('filter-close');
+const filterApply = document.getElementById('filter-apply');
+const filterClear = document.getElementById('filter-clear');
+const filterCountEl = document.getElementById('filter-count');
+const brandFiltersEl = document.getElementById('brand-filters');
 
 function money(value) { return `$${value.toLocaleString('es-CO')}`; }
 
 function renderProducts() {
   const visible = products
     .filter((product) => storeState.category === 'todos' || product.category === storeState.category)
-    .filter((product) => `${product.name} ${product.category}`.toLowerCase().includes(storeState.query.toLowerCase()));
-  if (storeState.sort === 'low') visible.sort((first, second) => first.price - second.price);
-  if (storeState.sort === 'high') visible.sort((first, second) => second.price - first.price);
+    .filter((product) => {
+      if (!storeState.query) return true;
+      return `${product.name} ${product.category} ${product.marca || ''}`.toLowerCase().includes(storeState.query.toLowerCase());
+    })
+    .filter((product) => {
+      if (!storeState.priceRanges.length) return true;
+      const price = product.detal || product.price;
+      return storeState.priceRanges.some((range) => {
+        if (range === '100+') return price >= 100;
+        const [min, max] = range.split('-').map(Number);
+        return price >= min && price <= max;
+      });
+    })
+    .filter((product) => {
+      if (!storeState.brands.length || !product.marca) return !storeState.brands.length ? true : false;
+      return storeState.brands.includes(product.marca);
+    });
+  if (storeState.sort === 'low') visible.sort((first, second) => (first.detal || first.price) - (second.detal || second.price));
+  if (storeState.sort === 'high') visible.sort((first, second) => (second.detal || second.price) - (first.detal || first.price));
+  if (storeState.sort === 'az') visible.sort((first, second) => first.name.localeCompare(second.name));
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? 'producto' : 'productos'}`;
-  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img class="lazy-image" src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir a la bolsa +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.detal || product.price)}</span>${product.mayor ? `<span class="price-mayor">Mayor ${money(product.mayor)}</span>` : ''}</div></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
+  const activeFilters = (storeState.priceRanges.length || storeState.brands.length) ? storeState.priceRanges.length + storeState.brands.length : 0;
+  if (activeFilters > 0) { filterCountEl.textContent = activeFilters; filterCountEl.hidden = false; } else { filterCountEl.hidden = true; }
+  grid.innerHTML = visible.length ? visible.map((product) => `<article class="product-card"><div class="product-image"><span class="product-badge">${product.label}</span>${product.image ? `<img class="lazy-image" src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.style.display='none'">` : `<span class="product-placeholder">${product.name.charAt(0)}</span>`}<button class="quick-add" data-add="${product.id}">Añadir +</button></div><div class="product-info"><span class="product-category">${categoryNames[product.category] || product.category}</span><h3 class="product-name">${product.name}</h3>${product.marca ? `<p class="product-brand">${product.marca}</p>` : ''}<div class="product-prices"><span class="price-detal">${money(product.detal || product.price)}</span>${product.mayor ? `<span class="price-mayor">Mayor ${money(product.mayor)}</span>` : ''}</div></div></article>`).join('') : '<p class="empty-state">No encontramos piezas con esa búsqueda. Prueba otra palabra.</p>';
 }
 
 function normalizeApiProduct(item) {
@@ -126,6 +153,7 @@ async function loadProducts() {
     const payload = await response.json();
     const list = Array.isArray(payload) ? payload : (payload.data || payload.products || payload.result || []);
     products = list.map(normalizeApiProduct).filter((product) => product.name);
+    generateBrandFilters();
     renderProducts();
     if (catalogStatus) catalogStatus.textContent = 'Catálogo actualizado.';
     if (adminView && !adminView.hidden) renderManagerList();
@@ -156,8 +184,68 @@ function selectCategory(category) {
   document.body.dataset.section = category;
   document.querySelectorAll('[data-category]').forEach((button) => button.classList.toggle('active', button.dataset.category === category));
   document.querySelectorAll('[data-nav]').forEach((link) => link.classList.toggle('active', link.dataset.nav === category));
+  const categoryRadio = document.querySelector(`input[name="filter-category"][value="${category}"]`);
+  if (categoryRadio) categoryRadio.checked = true;
+  const catalogTitle = document.getElementById('catalog-title');
+  if (catalogTitle) catalogTitle.textContent = category === 'todos' ? 'Todos' : (categoryNames[category] || category);
   renderProducts();
 }
+
+function generateBrandFilters() {
+  const brands = [...new Set(products.map((p) => p.marca).filter(Boolean))].sort();
+  brandFiltersEl.innerHTML = brands.length ? brands.map((brand) => `<label class="filter-option"><input type="checkbox" name="filter-brand" value="${brand}"> <span>${brand}</span></label>`).join('') : '<p class="filter-empty">No hay marcas disponibles</p>';
+}
+
+function openFilters() {
+  filterSidebar.classList.add('open');
+  filterOverlay.classList.add('open');
+  filterToggle.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFilters() {
+  filterSidebar.classList.remove('open');
+  filterOverlay.classList.remove('open');
+  filterToggle.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+}
+
+function applyFilters() {
+  const checkedPrices = [...document.querySelectorAll('input[name="filter-price"]:checked')].map((el) => el.value);
+  const checkedBrands = [...document.querySelectorAll('input[name="filter-brand"]:checked')].map((el) => el.value);
+  storeState.priceRanges = checkedPrices;
+  storeState.brands = checkedBrands;
+  const checkedCategory = document.querySelector('input[name="filter-category"]:checked');
+  if (checkedCategory) storeState.category = checkedCategory.value;
+  renderProducts();
+  closeFilters();
+}
+
+function clearFilters() {
+  document.querySelectorAll('input[name="filter-price"]:checked').forEach((el) => el.checked = false);
+  document.querySelectorAll('input[name="filter-brand"]:checked').forEach((el) => el.checked = false);
+  const allCategory = document.querySelector('input[name="filter-category"][value="todos"]');
+  if (allCategory) allCategory.checked = true;
+  storeState.priceRanges = [];
+  storeState.brands = [];
+  storeState.category = 'todos';
+  document.body.dataset.section = 'todos';
+  document.querySelectorAll('[data-category]').forEach((btn) => btn.classList.toggle('active', btn.dataset.category === 'todos'));
+  document.querySelectorAll('[data-nav]').forEach((link) => link.classList.toggle('active', link.dataset.nav === 'todos'));
+  const catalogTitle = document.getElementById('catalog-title');
+  if (catalogTitle) catalogTitle.textContent = 'Todos';
+  renderProducts();
+}
+
+filterToggle.addEventListener('click', openFilters);
+filterClose.addEventListener('click', closeFilters);
+filterOverlay.addEventListener('click', closeFilters);
+filterApply.addEventListener('click', applyFilters);
+filterClear.addEventListener('click', clearFilters);
+document.querySelectorAll('input[name="filter-category"]').forEach((radio) => radio.addEventListener('change', () => {
+  applyFilters();
+}));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && filterSidebar.classList.contains('open')) closeFilters(); });
 
 function routeFromLocation() {
   const route = window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'inicio';
@@ -234,9 +322,7 @@ document.addEventListener('click', (event) => {
   if (navLink) { navigateTo(navLink.dataset.nav); closeMobileMenu(); }
 });
 
-document.getElementById('search-input').addEventListener('input', (event) => { storeState.query = event.target.value; renderProducts(); });
 document.getElementById('sort-select').addEventListener('change', (event) => { storeState.sort = event.target.value; renderProducts(); });
-document.getElementById('search-toggle').addEventListener('click', () => { document.getElementById('search-input').focus(); document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' }); });
 document.getElementById('cart-toggle').addEventListener('click', openCart);
 document.getElementById('cart-close').addEventListener('click', closeCart);
 document.getElementById('drawer-overlay').addEventListener('click', closeCart);
@@ -365,5 +451,6 @@ managerList.addEventListener('click', (event) => {
   }
 });
 
+generateBrandFilters();
 renderProducts();
 loadProducts().finally(() => applyRoute());

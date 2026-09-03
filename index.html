@@ -74,35 +74,75 @@
         <div class="hero-object"><span>LUMEN</span></div>
       </div>
     </section>
-    <section class="category-strip" aria-label="Categorías">
-      <button class="category-chip active" data-category="todos"><span>✦</span> Todo</button>
-      <button class="category-chip" data-category="escolar"><span>✎</span> Escolar</button>
-      <button class="category-chip" data-category="belleza"><span>◌</span> Belleza</button>
-      <button class="category-chip" data-category="hogar"><span>⌂</span> Hogar</button>
-      <button class="category-chip" data-category="tecnologia"><span>⌁</span> Tecnología</button>
-    </section>
-    <section class="catalog-section" id="catalogo" aria-labelledby="catalog-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">La selección Lumen</p>
-          <h2 id="catalog-title">Encuentra tu próximo favorito</h2>
-        </div>
-        <div class="catalog-meta">
-          <p id="result-count" class="result-count"></p>
-          <p id="catalog-status" class="catalog-status" role="status" aria-live="polite"></p>
+    <section class="catalog-section" id="catalogo">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="#inicio">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Tienda</span>
+      </nav>
+      <div class="catalog-header">
+        <h1 class="catalog-title" id="catalog-title">Todos</h1>
+        <p id="result-count" class="result-count"></p>
+      </div>
+      <p id="catalog-status" class="catalog-status" role="status" aria-live="polite"></p>
+      <div class="refine-bar">
+        <button class="refine-toggle" id="filter-toggle" aria-expanded="false" aria-controls="filter-sidebar">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+          Refinar
+          <span class="filter-count" id="filter-count" hidden></span>
+        </button>
+        <div class="refine-right">
+          <label class="sort-label">
+            <span class="sr-only">Ordenar por</span>
+            <select id="sort-select" aria-label="Ordenar productos">
+              <option value="featured">Destacados</option>
+              <option value="low">Precio: menor a mayor</option>
+              <option value="high">Precio: mayor a menor</option>
+              <option value="az">Nombre: A-Z</option>
+            </select>
+          </label>
         </div>
       </div>
-      <div class="catalog-tools">
-        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search"
-            placeholder="Buscar por nombre o categoría" aria-label="Buscar productos">
-        </label>
-        <select id="sort-select" aria-label="Ordenar productos">
-          <option value="featured">Destacados</option>
-          <option value="low">Precio: menor a mayor</option>
-          <option value="high">Precio: mayor a menor</option>
-        </select>
+      <div class="catalog-content">
+        <aside class="filter-sidebar" id="filter-sidebar" aria-label="Filtros">
+          <div class="filter-sidebar-header">
+            <h3>Filtros</h3>
+            <button class="filter-close" id="filter-close" aria-label="Cerrar filtros">&times;</button>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Categoría</h4>
+            <div class="filter-options" id="category-filters">
+              <label class="filter-option"><input type="radio" name="filter-category" value="todos" checked> <span>Todos</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="escolar"> <span>Escolar</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="belleza"> <span>Belleza</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="hogar"> <span>Hogar</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="tecnologia"> <span>Tecnología</span></label>
+              <label class="filter-option"><input type="radio" name="filter-category" value="variados"> <span>Variados</span></label>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Precio</h4>
+            <div class="filter-options" id="price-filters">
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="0-20"> <span>Hasta $20</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="20-50"> <span>$20 &ndash; $50</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="50-100"> <span>$50 &ndash; $100</span></label>
+              <label class="filter-option"><input type="checkbox" name="filter-price" value="100+"> <span>Más de $100</span></label>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h4 class="filter-section-title">Marca</h4>
+            <div class="filter-options" id="brand-filters"></div>
+          </div>
+          <div class="filter-actions">
+            <button class="filter-clear" id="filter-clear" type="button">Limpiar todo</button>
+            <button class="filter-apply" id="filter-apply" type="button">Aplicar filtros</button>
+          </div>
+        </aside>
+        <div class="filter-overlay" id="filter-overlay"></div>
+        <div class="catalog-main">
+          <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        </div>
       </div>
-      <div class="product-grid" id="product-grid" aria-live="polite"></div>
     </section>
   </main>
   <section class="login-page" id="login-page" hidden aria-labelledby="login-page-title">
