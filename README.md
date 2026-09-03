@@ -86,17 +86,33 @@ npm test
 
 ## Despliegue decoupled (Jamstack)
 
-Los paquetes de frontend no requieren build: se publican tal cual como sitio estático.
+Los paquetes de frontend no requieren build: se publican tal cual como sitio estático,
+siempre que el backend Express sirva `/api/*` (SQLite) y las rutas `/`, `/admin` y `/shared/*`.
 
-- **`packages/store/`** → desplegar como sitio estático (tienda).
-- **`packages/admin/`** → desplegar como sitio estático (admin).
-- Configura la API de productos en `packages/shared/js/api-config.js`:
+En `packages/shared/js/api-config.js`:
 
 ```javascript
-export const PRODUCT_API_URL = 'https://api-crud-wes5.onrender.com/api/products';
+export const PRODUCT_API_URL = '/api/products';       // backend local Express (SQLite)
 export const AI_API_URL = 'https://api-gemini-ru4e.onrender.com/extract';
 ```
 
+`PRODUCT_API_URL` apunta al backend Express del mismo origen. Si despliegas la tienda/admin
+en un host distinto al backend, configura aquí la URL completa del backend (p. ej.
+`https://tu-backend/api/products`).
+
 ## API de productos
 
-El panel de administración envía un `POST` con los campos `descripcion`, `codigo`, `categoria`, `precioDetal`, `precioMayor`, `marca`, `origen` y `codigoBarras`. Los precios se envían como números. La respuesta debe tener un estado HTTP `2xx` para limpiar el formulario.
+La base de datos es **SQLite** (archivo local `data/lumen.db`, ignorado por git). La tienda
+solo puede **leer** productos (`GET`); el panel de administración puede **crear, modificar y
+eliminar** (`POST`, `PUT`, `DELETE`) enviando el token en la cabecera `x-admin-token`.
+
+El `POST` del admin acepta los campos `descripcion`, `codigo`, `categoria`, `precioDetal`,
+`precioMayor`, `marca`, `origen` y `codigoBarras`. Los precios se envían como números. La
+respuesta debe tener un estado HTTP `2xx` para limpiar el formulario.
+
+## Base de datos
+
+- Driver: `sqlite3` (node-sqlite3).
+- Archivo por defecto: `data/lumen.db` (se crea automáticamente al iniciar).
+- Variables: `ADMIN_TOKEN` (token de administración, por defecto `lumen-admin`).
+- Los tests usan una base en memoria (`:memory:`) para aislar el estado.

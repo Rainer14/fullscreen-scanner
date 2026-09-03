@@ -3,6 +3,7 @@ import { initFormController } from './js/form-controller.js';
 import { initImageUploader } from './js/image-uploader.js';
 import { fillProductForm } from './js/product-data-mapper.js';
 import { initQrScanner } from './js/qr-scanner.js';
+import { getStoredToken, saveToken, clearToken, checkToken } from './js/auth.js';
 import { showToast } from '../shared/js/toast.js';
 import { money } from '../shared/js/money.js';
 
@@ -87,12 +88,31 @@ initImageUploader({
 
 document.getElementById('account-close').addEventListener('click', closeAccount);
 
-document.getElementById('login-form').addEventListener('submit', (event) => {
+document.getElementById('login-form').addEventListener('submit', async (event) => {
   event.preventDefault();
-  showDashboard();
+  const passwordField = document.getElementById('login-password');
+  const token = passwordField?.value.trim() || '';
+  const submitButton = event.target.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
+
+  try {
+    const valid = await checkToken(token);
+    if (!valid) {
+      showToast('Token de administración incorrecto.');
+      return;
+    }
+    saveToken(token);
+    showDashboard();
+  } catch (error) {
+    console.error('Error al verificar el token:', error);
+    showToast('No se pudo conectar con el servidor.');
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
 });
 
 document.getElementById('logout-button').addEventListener('click', () => {
+  clearToken();
   closeAccount();
   showLoginPage();
 });
@@ -193,9 +213,23 @@ function resetManagerForm() {
   document.getElementById('manager-cancel').hidden = true;
 }
 
+async function restoreSession() {
+  const token = getStoredToken();
+  if (token) {
+    const valid = await checkToken(token).catch(() => false);
+    if (valid) {
+      showDashboard();
+      return;
+    }
+    clearToken();
+  }
+  showLoginPage();
+}
+
 loadProducts({
   onSuccess: () => renderManagerList(),
   onError: () => showToast('No se pudo conectar a la API; mostrando catálogo local.')
 });
 
 renderManagerList();
+restoreSession();

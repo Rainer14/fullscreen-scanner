@@ -1,5 +1,9 @@
+// Cliente de la API de productos del panel de administración.
+// La lectura es pública; la escritura (crear/modificar/eliminar) exige el token de admin.
+
 import { normalizeApiProduct } from '../../shared/js/normalize.js';
 import { PRODUCT_API_URL } from '../../shared/js/api-config.js';
+import { getAuthToken } from './auth.js';
 
 let products = [];
 
@@ -7,6 +11,12 @@ export function getProducts() { return products; }
 
 export function setProducts(list) { products = list; }
 
+// Headers para las peticiones de escritura: incluyen el token de administración.
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'x-admin-token': getAuthToken() };
+}
+
+// Carga el catálogo (lectura pública) y normaliza cada producto.
 export async function loadProducts({ onSuccess, onError } = {}) {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 8000);
@@ -27,10 +37,11 @@ export async function loadProducts({ onSuccess, onError } = {}) {
   }
 }
 
+// Crea un producto (escritura protegida por token).
 export async function createProduct(productData) {
   const response = await fetch(PRODUCT_API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(productData)
   });
   if (!response.ok) {
@@ -44,10 +55,11 @@ export async function createProduct(productData) {
   return response;
 }
 
+// Modifica un producto existente (escritura protegida por token).
 export async function updateProduct(id, productData) {
   const response = await fetch(`${PRODUCT_API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(productData)
   });
   if (!response.ok) {
@@ -61,8 +73,12 @@ export async function updateProduct(id, productData) {
   return response;
 }
 
+// Elimina un producto (escritura protegida por token).
 export async function deleteProduct(id) {
-  const response = await fetch(`${PRODUCT_API_URL}/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${PRODUCT_API_URL}/${id}`, {
+    method: 'DELETE',
+    headers: { 'x-admin-token': getAuthToken() }
+  });
   if (!response.ok) {
     let message = `Error HTTP: ${response.status}`;
     try {

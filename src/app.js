@@ -1,17 +1,23 @@
 const express = require('express');
 const path = require('path');
 const { createAppConfig } = require('./config/appConfig');
+const { openDatabase, closeDatabase } = require('./db');
 const { createQrRepository } = require('./models/qrRepository');
+const { createProductRepository } = require('./models/productRepository');
 const { createQrService } = require('./services/qrService');
+const { createProductService } = require('./services/productService');
 const { createHealthController } = require('./controllers/healthController');
 const { createInfoController } = require('./controllers/infoController');
 const { createQrController } = require('./controllers/qrController');
+const { createProductController } = require('./controllers/productController');
 const { createApiRoutes } = require('./routes/apiRoutes');
+const { createAuthMiddleware } = require('./middleware/auth');
 
 function createApp({
   appConfig = createAppConfig(),
   fileSystem,
-  clock
+  clock,
+  sqliteDb
 } = {}) {
   const app = express();
   const qrRepository = createQrRepository({
@@ -20,6 +26,15 @@ function createApp({
   });
   const qrService = createQrService({ repository: qrRepository, clock });
   const qrController = createQrController({ qrService });
+
+  // SQLite: si no se inyecta una db (tests), se abre la del config
+  const db = sqliteDb || openDatabase(appConfig.dbFile);
+  const productRepository = createProductRepository({ sqliteDb: db });
+  const productService = createProductService({ repository: productRepository });
+  const productController = createProductController({ service: productService });
+  const requireAdminToken = createAuthMiddleware({ adminToken: appConfig.adminToken });
+
+  app.locals.database = db;
 
   app.use(express.json());
 
@@ -54,10 +69,12 @@ function createApp({
   app.use('/api', createApiRoutes({
     healthController: createHealthController({ clock }),
     infoController: createInfoController({ appConfig }),
-    qrController
+    qrController,
+    productController,
+    requireAdminToken
   }));
 
   return app;
 }
 
-module.exports = { createApp };
+module.exports = { createApp, closeDatabase };
