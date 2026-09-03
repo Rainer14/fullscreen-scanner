@@ -36,9 +36,13 @@
             <input id="login-email" type="email" placeholder=" " required>
             <span>Correo electrónico</span>
           </label>
-          <label class="login-field">
+          <label class="login-field login-field-password">
             <input id="login-password" type="password" placeholder=" " minlength="4" required>
             <span>Contraseña</span>
+            <button class="password-toggle" id="password-toggle" type="button" aria-label="Mostrar contraseña" aria-pressed="false">
+              <svg class="icon-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="icon-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
           </label>
           <button class="primary-button login-submit" type="submit">Entrar <span aria-hidden="true">&rarr;</span></button>
           <p class="form-hint">Introduce la contraseña de administración para obtener tu token de acceso.</p>

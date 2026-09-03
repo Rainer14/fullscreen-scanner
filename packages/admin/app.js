@@ -88,6 +88,19 @@ initImageUploader({
 
 document.getElementById('account-close').addEventListener('click', closeAccount);
 
+// Botón para mostrar/ocultar la contraseña del login.
+const passwordToggle = document.getElementById('password-toggle');
+passwordToggle?.addEventListener('click', () => {
+  const passwordField = document.getElementById('login-password');
+  if (!passwordField) return;
+  const showing = passwordField.type === 'text';
+  passwordField.type = showing ? 'password' : 'text';
+  passwordToggle.classList.toggle('is-visible', !showing);
+  passwordToggle.setAttribute('aria-pressed', String(!showing));
+  passwordToggle.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+  passwordField.focus();
+});
+
 document.getElementById('login-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const passwordField = document.getElementById('login-password');

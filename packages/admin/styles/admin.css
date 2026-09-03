@@ -449,6 +449,46 @@
   color: var(--accent);
 }
 
+.login-field-password input {
+  padding-right: 72px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+}
+
+.password-toggle:hover {
+  color: var(--ink);
+  background: rgba(0, 0, 0, .06);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.password-toggle .icon-eye-off,
+.password-toggle.is-visible .icon-eye {
+  display: none;
+}
+
+.password-toggle.is-visible .icon-eye-off {
+  display: block;
+}
+
 .login-submit {
   width: 100%;
   justify-content: space-between;
