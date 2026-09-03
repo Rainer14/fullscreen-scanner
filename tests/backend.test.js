@@ -173,6 +173,8 @@ test('product API separates read (public) and write (admin-token protected) oper
     categoria: 'escolar',
     precioDetal: 120,
     precioMayor: 90,
+    tasaCambio: 1,
+    margen: 0,
     marca: 'Lumen',
     origen: 'AR',
     codigoBarras: '779000000001'
@@ -210,6 +212,10 @@ test('product API separates read (public) and write (admin-token protected) oper
   const created = await request(server, 'POST', '/api/products', product, { Authorization: `Bearer ${jwt}` });
   assert.equal(created.statusCode, 201);
   assert.equal(created.json.data.name, 'Cuaderno A5');
+  assert.equal(created.json.data.precioDolar, 120);
+  assert.equal(created.json.data.tasaCambio, 1);
+  assert.equal(created.json.data.margen, 0);
+  assert.equal(created.json.data.precioDolarTienda, 120);
   const id = created.json.data.id;
   assert.ok(id > 0);
 
@@ -228,6 +234,7 @@ test('product API separates read (public) and write (admin-token protected) oper
   const updated = await request(server, 'PUT', `/api/products/${id}`, { ...product, precioDetal: 150 }, { Authorization: `Bearer ${jwt}` });
   assert.equal(updated.statusCode, 200);
   assert.equal(updated.json.data.precioDetal, 150);
+  assert.equal(updated.json.data.precioDolar, 150);
 
   // DELETE con JWT: elimina
   const deleted = await request(server, 'DELETE', `/api/products/${id}`, null, { Authorization: `Bearer ${jwt}` });

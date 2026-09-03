@@ -114,6 +114,29 @@
               </div>
 
               <div class="field-group">
+                <label for="product-tasaCambio">Tasa BCV (Bs/USD)</label>
+                <div class="tasa-wrap">
+                  <input id="product-tasaCambio" name="tasaCambio" type="number" min="0" step="0.0001" placeholder="Auto desde BCV">
+                  <button type="button" id="btn-reload-rate" class="tasa-reload" title="Actualizar tasa BCV">&olarr;</button>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="product-margen">Margen de ganancia (%)</label>
+                <input id="product-margen" name="margen" type="number" min="0" step="0.5" placeholder="30">
+              </div>
+
+              <div class="field-group">
+                <label for="product-precioDolar">Precio en Dólares ($)</label>
+                <input id="product-precioDolar" name="precioDolar" type="number" min="0" step="0.01" placeholder="0.00" readonly>
+              </div>
+
+              <div class="field-group">
+                <label for="product-precioDolarTienda">Precio Tienda ($)</label>
+                <input id="product-precioDolarTienda" name="precioDolarTienda" type="number" min="0" step="0.01" placeholder="0.00" readonly>
+              </div>
+
+              <div class="field-group">
                 <label for="product-marca">Marca</label>
                 <input id="product-marca" name="marca" type="text" placeholder="Marca">
               </div>

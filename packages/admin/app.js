@@ -1,5 +1,5 @@
 import { getProducts, setProducts, createProduct, updateProduct, deleteProduct, loadProducts } from './js/products.js';
-import { initFormController } from './js/form-controller.js';
+import { initFormController, recalculatePrices } from './js/form-controller.js';
 import { initImageUploader } from './js/image-uploader.js';
 import { fillProductForm } from './js/product-data-mapper.js';
 import { initQrScanner } from './js/qr-scanner.js';
@@ -58,6 +58,7 @@ function showDashboard() {
   document.getElementById('app').hidden = false;
   document.body.dataset.route = 'admin';
   openAccount();
+  fetchBcvRate();
 }
 
 function setSubmitButtonText(text) {
@@ -66,6 +67,25 @@ function setSubmitButtonText(text) {
 
 function isEditing() {
   return !!document.getElementById('product-id').value;
+}
+
+async function fetchBcvRate() {
+  const tasaInput = document.getElementById('product-tasaCambio');
+  if (!tasaInput) return;
+  try {
+    const response = await fetch('/api/bcv-rate');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const data = payload.data || payload;
+    const tasa = Number(data.tasa);
+    if (tasa > 0) {
+      tasaInput.value = tasa.toFixed(4);
+      recalculatePrices();
+    }
+  } catch (error) {
+    console.error('No se pudo obtener la tasa BCV:', error);
+    showToast('No se pudo obtener la tasa BCV automáticamente.');
+  }
 }
 
 const qrScanner = initQrScanner({
@@ -103,12 +123,14 @@ initFormController({
       showToast('Producto registrado con éxito.');
     }
     setSubmitButtonText('Registrar producto <span>&rarr;</span>');
-  }
+  },
+  onReloadRate: fetchBcvRate
 });
 
 initImageUploader({
   onDataExtracted: (responseData) => {
     fillProductForm(responseData);
+    recalculatePrices();
     showToast('Datos extraídos con IA. Revisa y completa los campos.');
   }
 });
@@ -169,6 +191,10 @@ productList.addEventListener('click', async (event) => {
     document.getElementById('product-precio').value = product.price || '';
     document.getElementById('product-precioDetal').value = product.precioDetal || '';
     document.getElementById('product-precioMayor').value = product.precioMayor || '';
+    document.getElementById('product-tasaCambio').value = product.tasaCambio || '';
+    document.getElementById('product-margen').value = product.margen !== undefined && product.margen !== null ? product.margen : '';
+    document.getElementById('product-precioDolar').value = product.precioDolar || '';
+    document.getElementById('product-precioDolarTienda').value = product.precioDolarTienda || '';
     document.getElementById('product-marca').value = product.marca || '';
     document.getElementById('product-origen').value = product.origen || '';
     document.getElementById('product-codigoBarras').value = product.codigoBarras || '';

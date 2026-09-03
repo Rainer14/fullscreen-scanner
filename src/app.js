@@ -12,6 +12,7 @@ const { createInfoController } = require('./controllers/infoController');
 const { createQrController } = require('./controllers/qrController');
 const { createProductController } = require('./controllers/productController');
 const { createAuthController } = require('./controllers/authController');
+const { createBcvRateController } = require('./controllers/bcvRateController');
 const { createApiRoutes } = require('./routes/apiRoutes');
 const { createAuthMiddleware } = require('./middleware/auth');
 
@@ -29,14 +30,12 @@ function createApp({
   const qrService = createQrService({ repository: qrRepository, clock });
   const qrController = createQrController({ qrService });
 
-  // SQLite: si no se inyecta una db (tests), se abre la del config
   const db = sqliteDb || openDatabase(appConfig.dbFile);
   const productRepository = createProductRepository({ sqliteDb: db });
   const productService = createProductService({ repository: productRepository });
   const productController = createProductController({ service: productService });
+  const bcvRateController = createBcvRateController();
 
-  // Autenticación con JWT: servicio que firma/verifica tokens, controlador de login
-  // y middleware que protege las operaciones de escritura del admin.
   const authService = createAuthService({
     adminToken: appConfig.adminToken,
     jwtSecret: appConfig.jwtSecret,
@@ -49,25 +48,17 @@ function createApp({
 
   app.use(express.json());
 
-  // La tienda es la única URL canónica en la raíz "/"
   if (appConfig.storeDirectory) {
-    // Redirige cualquier ruta '/store' antigua al canónico '/'
     app.get('/store', (req, res) => res.redirect('/'));
     app.get('/store/', (req, res) => res.redirect('/'));
-
-    // Monta el paquete de la tienda en la raíz: "/", "/app.js", "/styles/*", "/js/*"
     app.use(express.static(appConfig.storeDirectory));
   }
 
-  // Assets compartidos bajo "/shared/*"
   if (appConfig.sharedDirectory) {
     app.use('/shared', express.static(appConfig.sharedDirectory));
   }
 
-  // Panel de administración bajo "/admin"
   if (appConfig.adminDirectory) {
-    // "/admin" redirige a "/admin/" para que las rutas relativas resuelvan bien;
-    // "/admin/" sirve el índice. La regex distingue el slash final.
     app.get(/^\/admin\/?$/, (req, res) => {
       if (!req.originalUrl.endsWith('/')) return res.redirect('/admin/');
       res.sendFile(path.join(appConfig.adminDirectory, 'index.html'));
@@ -83,7 +74,8 @@ function createApp({
     qrController,
     productController,
     authController,
-    requireAdminToken
+    requireAdminToken,
+    bcvRateController
   }));
 
   return app;

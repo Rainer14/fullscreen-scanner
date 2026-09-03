@@ -4,6 +4,10 @@ const fieldAliases = {
   categoria: ['categoria', 'categoría', 'category'],
   precioDetal: ['detal', 'precioDetal', 'precio_detal', 'precio detal', 'precio', 'retailPrice', 'retail_price', 'price'],
   precioMayor: ['mayor', 'precioMayor', 'precio_mayor', 'precio mayor', 'wholesalePrice', 'wholesale_price'],
+  tasaCambio: ['tasaCambio', 'tasa_cambio', 'tasa', 'bcv', 'dolar', 'tasaBCV', 'bcvRate'],
+  margen: ['margen', 'margen_porcentaje', 'margenPorcentaje', 'margin', 'profitMargin'],
+  precioDolar: ['precioDolar', 'precio_dolar', 'precioDolares'],
+  precioDolarTienda: ['precioDolarTienda', 'precio_dolar_tienda', 'tiendaDolar'],
   marca: ['marca', 'brand'],
   origen: ['origen', 'origin', 'paisOrigen', 'paísOrigen'],
   codigoBarras: ['barcode', 'codebar', 'codigo', 'código', 'codigoBarras', 'códigoBarras', 'codigo_de_barras', 'ean', 'upc']

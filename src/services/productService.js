@@ -1,7 +1,4 @@
-// Servicio de productos: es la capa de reglas de negocio.
-// Valida los datos y delega el almacenamiento al repositorio SQLite.
 function createProductService({ repository }) {
-  // Valida que la descripción y el código estén presentes antes de escribir.
   function validateCreate(product) {
     const name = String(product.descripcion ?? product.name ?? '').trim();
     const codigo = String(product.codigo ?? '').trim();
@@ -12,6 +9,18 @@ function createProductService({ repository }) {
     }
     if (!codigo) {
       const error = new Error('El código del producto es obligatorio.');
+      error.statusCode = 400;
+      throw error;
+    }
+    const tasaCambio = Number(product.tasaCambio) || 0;
+    if (tasaCambio <= 0) {
+      const error = new Error('La tasa de cambio del BCV debe ser mayor a 0.');
+      error.statusCode = 400;
+      throw error;
+    }
+    const margen = Number(product.margen);
+    if (isNaN(margen) || margen < 0) {
+      const error = new Error('El margen de ganancia debe ser un número mayor o igual a 0.');
       error.statusCode = 400;
       throw error;
     }
