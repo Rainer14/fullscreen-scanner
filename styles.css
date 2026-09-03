@@ -832,14 +832,16 @@ select:focus-visible {
 
 .pdp-layout {
   display: grid;
-  grid-template-columns: 55% 1fr;
-  gap: 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 56px;
   align-items: start;
 }
 
 .pdp-gallery {
   position: sticky;
   top: 100px;
+  max-width: 460px;
+  justify-self: center;
 }
 
 .pdp-main-image {
@@ -2373,7 +2375,7 @@ body[data-route="cuenta"] .login-home-link {
 
   .pdp { padding: 12px 14px 50px; }
 
-  .pdp-main-image { aspect-ratio: 1 / 1.15; }
+  .pdp-main-image { aspect-ratio: 3 / 4; }
 
   .pdp-thumbs { gap: 6px; }
   .pdp-thumb { flex: 0 0 calc(25% - 5px); }
