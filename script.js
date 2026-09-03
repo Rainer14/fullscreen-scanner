@@ -67,7 +67,13 @@ let products = [
   { id: 8, name: 'Taza Terra', category: 'variados', label: 'Lumen', price: 22, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=700&q=80', description: 'Taza artesanal de cerámica esmaltada con acabado mate. Diseño orgánico inspirado en la naturaleza. Capacidad de 350ml, apta para lavavajillas y microondas.', materials: 'Cerámica artesanal, esmalte no tóxico', care: 'Apta para lavavajillas. No golpear.', colors: [{ name: 'Terracota', hex: '#c4785a' }, { name: 'Arena', hex: '#d9c9b0' }, { name: 'Índigo', hex: '#3d5a80' }], sizes: ['350ml'], images: ['https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=80'] }
 ];
 
-const storeState = { category: 'todos', query: '', sort: 'featured', cart: [], priceRanges: [], brands: [] };
+const storeState = { category: 'todos', query: '', sort: 'featured', cart: [], priceRanges: [], brands: [], session: { viewedProducts: [], clickedProducts: [], purchasedProducts: [] } };
+
+let currentUserId = localStorage.getItem('lumen_user_id');
+if (!currentUserId) {
+  currentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+  localStorage.setItem('lumen_user_id', currentUserId);
+}
 const categoryNames = { escolar: 'Escolar', belleza: 'Belleza', hogar: 'Hogar', tecnologia: 'Tecnología', variados: 'Variados' };
 const routeCategories = new Set(['todos', 'escolar', 'belleza', 'hogar', 'tecnologia', 'variados']);
 const grid = document.getElementById('product-grid');
@@ -84,6 +90,144 @@ const filterCountEl = document.getElementById('filter-count');
 const brandFiltersEl = document.getElementById('brand-filters');
 
 function money(value) { return `$${value.toLocaleString('es-CO')}`; }
+
+const SESSION_WINDOW_MS = 30 * 60 * 1000;
+const COLLAB_THRESHOLD = 15;
+const SESSION_MAX_EVENTS = 50;
+
+function trackInteraction(productId, eventType) {
+  const targetMap = { view: storeState.session.viewedProducts, click: storeState.session.clickedProducts, purchase: storeState.session.purchasedProducts };
+  const target = targetMap[eventType];
+  if (!target) return;
+  cleanSessionData();
+  target.unshift({ id: productId, timestamp: new Date().toISOString(), userId: currentUserId });
+  if (target.length > SESSION_MAX_EVENTS) target.pop();
+}
+
+function trackView(productId) { trackInteraction(productId, 'view'); }
+function trackClick(productId) { trackInteraction(productId, 'click'); }
+function trackPurchase(productId) { trackInteraction(productId, 'purchase'); }
+
+function cleanSessionData() {
+  const now = Date.now();
+  Object.keys(storeState.session).forEach((key) => {
+    storeState.session[key] = storeState.session[key].filter((item) => now - new Date(item.timestamp).getTime() <= SESSION_WINDOW_MS);
+  });
+}
+
+setInterval(cleanSessionData, 60000);
+
+function computeContentScores(product, allProducts, factors = ['category', 'brand', 'price']) {
+  return allProducts
+    .filter((p) => p.id !== product.id)
+    .map((p) => {
+      let matchCount = 0;
+      const total = factors.length;
+      if (factors.includes('category') && p.category === product.category) matchCount++;
+      if (factors.includes('brand') && p.marca && p.marca === product.marca) matchCount++;
+      if (factors.includes('price')) {
+        const p1 = product.price || product.detal || 0;
+        const p2 = p.price || p.detal || 0;
+        if (p1 > 0 && p2 > 0 && Math.abs(p1 - p2) / Math.max(p1, p2) < 0.5) matchCount++;
+      }
+      if (factors.includes('colors')) {
+        const p1Colors = new Set((product.colors || []).map((c) => c.hex));
+        const p2Colors = new Set((p.colors || []).map((c) => c.hex));
+        if ([...p1Colors].some((hex) => p2Colors.has(hex))) matchCount++;
+      }
+      if (factors.includes('materials')) {
+        const p1Mats = new Set((product.materials || '').split(/\s*,\s*/).filter(Boolean));
+        const p2Mats = new Set((p.materials || '').split(/\s*,\s*/).filter(Boolean));
+        if ([...p1Mats].some((mat) => p2Mats.has(mat))) matchCount++;
+      }
+      return { product: p, score: total ? matchCount / total : 0 };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+function calculateActiveUsers(sessionData, windowMs = SESSION_WINDOW_MS) {
+  const now = Date.now();
+  return new Set(
+    sessionData
+      .filter((item) => now - new Date(item.timestamp).getTime() <= windowMs)
+      .map((item) => item.userId)
+  ).size;
+}
+
+function getCollaborativeWeight(activeUserCount, threshold = COLLAB_THRESHOLD) {
+  if (activeUserCount <= 0 || activeUserCount < threshold) return 0;
+  const maxUseful = 100;
+  const baseWeight = 0.3;
+  const k = 0.3;
+  return baseWeight * (1 - Math.exp(-k * (activeUserCount - threshold + 1))) / (1 - Math.exp(-k * maxUseful));
+}
+
+function computeCollaborativeScores(product, sessionData, allProducts) {
+  const userInteractions = {};
+  sessionData.forEach((item) => {
+    if (!userInteractions[item.userId]) userInteractions[item.userId] = { viewed: [], clicked: [] };
+    userInteractions[item.userId].clicked.push(item.id);
+  });
+  storeState.session.viewedProducts.forEach((item) => {
+    if (!userInteractions[item.userId]) userInteractions[item.userId] = { viewed: [], clicked: [] };
+    userInteractions[item.userId].viewed.push(item.id);
+  });
+
+  const productScores = {};
+  Object.values(userInteractions).forEach((user) => {
+    const userProducts = new Set([...user.viewed, ...user.clicked]);
+    if (![...userProducts].some((id) => String(id) === String(product.id))) return;
+    const baseScore = 0.8;
+    userProducts.forEach((relatedId) => {
+      const relatedProduct = allProducts.find((p) => String(p.id) === String(relatedId));
+      if (!relatedProduct || String(relatedProduct.id) === String(product.id)) return;
+      const boost = relatedProduct.category === product.category ? 0.5 : 0.2;
+      productScores[relatedId] = (productScores[relatedId] || 0) + baseScore * boost;
+    });
+  });
+  return productScores;
+}
+
+function getRelatedProductsHybrid(product, allProducts, options = {}) {
+  const {
+    maxItems = 4,
+    contentFactors = ['category', 'brand', 'price'],
+  } = options;
+
+  const activeUsers = calculateActiveUsers(storeState.session.clickedProducts);
+  const collabWeight = getCollaborativeWeight(activeUsers);
+  const contentWeight = 1 - collabWeight;
+
+  const contentScores = computeContentScores(product, allProducts, contentFactors);
+
+  const collaborativeScores = activeUsers >= COLLAB_THRESHOLD
+    ? computeCollaborativeScores(product, storeState.session.clickedProducts, allProducts)
+    : {};
+
+  const combined = new Map();
+  contentScores.forEach(({ product: p, score }) => {
+    const collabScore = collaborativeScores[p.id] || 0;
+    combined.set(p.id, (score * contentWeight) + (collabScore * collabWeight));
+  });
+
+  const sorted = [...combined.entries()].sort((a, b) => b[1] - a[1]).slice(0, maxItems).map(([id]) => id);
+
+  const results = [];
+  const usedIds = new Set();
+  sorted.forEach((id) => {
+    const found = allProducts.find((p) => String(p.id) === String(id));
+    if (found && !usedIds.has(String(found.id))) { results.push(found); usedIds.add(String(found.id)); }
+  });
+
+  allProducts.forEach((p) => {
+    if (results.length >= maxItems) return;
+    if (String(p.id) === String(product.id) || usedIds.has(String(p.id))) return;
+    results.push(p);
+    usedIds.add(String(p.id));
+  });
+
+  return results.slice(0, maxItems);
+}
 
 function renderProducts() {
   const visible = products
@@ -332,6 +476,7 @@ document.addEventListener('click', (event) => {
   }
   if (removeButton) { storeState.cart = storeState.cart.filter((item) => String(item.id) !== removeButton.dataset.remove); renderCart(); }
   if (productCard && !addButton) {
+    trackClick(productCard.dataset.id);
     navigateTo(`product-${productCard.dataset.id}`);
     return;
   }
@@ -421,6 +566,8 @@ function renderProductDetail(id) {
 
   selectedPdpColor = null;
   selectedPdpSize = null;
+
+  trackView(id);
 
   document.getElementById('pdp-crumb-cat').textContent = categoryNames[product.category] || product.category;
   document.getElementById('pdp-crumb-name').textContent = product.name;
@@ -513,11 +660,11 @@ function renderPdpSizes(product) {
 }
 
 function renderPdpRelated(product) {
-  const related = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
-  const fallback = related.length < 4 ? products.filter((p) => p.id !== product.id && !related.includes(p)).slice(0, 4 - related.length) : [];
+  const related = getRelatedProductsHybrid(product, products, {
+    contentFactors: ['category', 'brand', 'price', 'colors'],
+  });
   const gridEl = document.getElementById('pdp-related-grid');
-  const items = [...related, ...fallback].slice(0, 4);
-  gridEl.innerHTML = items.map((p) => `
+  gridEl.innerHTML = related.map((p) => `
     <article class="product-card" data-id="${p.id}" role="button" tabindex="0">
       <div class="product-image">
         <span class="product-badge">${p.label}</span>
@@ -532,6 +679,7 @@ function renderPdpRelated(product) {
     </article>`).join('');
   gridEl.querySelectorAll('.product-card').forEach((card) => {
     const go = () => {
+      trackClick(card.dataset.id);
       navigateTo(`product-${card.dataset.id}`);
       card.blur();
     };
