@@ -139,7 +139,11 @@
     </nav>
     <div class="pdp-layout">
       <aside class="pdp-gallery">
-        <div class="pdp-main-image"><img id="pdp-main-img" src="" alt="" loading="lazy"></div>
+        <div class="pdp-carousel">
+          <button type="button" class="pdp-carousel-btn pdp-carousel-prev" id="pdp-carousel-prev" aria-label="Imagen anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="pdp-main-image"><img id="pdp-main-img" src="" alt="" loading="lazy"></div>
+          <button type="button" class="pdp-carousel-btn pdp-carousel-next" id="pdp-carousel-next" aria-label="Imagen siguiente"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
         <div class="pdp-thumbs" id="pdp-thumbs" role="listbox" aria-label="Im&#225;genes del producto"></div>
       </aside>
       <main class="pdp-info">

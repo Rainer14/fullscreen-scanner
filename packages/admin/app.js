@@ -1,6 +1,7 @@
 import { getProducts, setProducts, createProduct, updateProduct, deleteProduct, loadProducts } from './js/products.js';
 import { initFormController, recalculatePrices } from './js/form-controller.js';
 import { initImageUploader } from './js/image-uploader.js';
+import { initGalleryManager } from './js/gallery-manager.js';
 import { fillProductForm } from './js/product-data-mapper.js';
 import { initQrScanner } from './js/qr-scanner.js';
 import { getStoredToken, saveToken, clearToken, checkToken, login } from './js/auth.js';
@@ -99,6 +100,8 @@ const qrScanner = initQrScanner({
   }
 });
 
+const galleryManager = initGalleryManager();
+
 initFormController({
   onSubmit: async (productData) => {
     const id = document.getElementById('product-id').value;
@@ -110,6 +113,7 @@ initFormController({
   onFormReset: async () => {
     if (qrScanner.isActive()) await qrScanner.stop();
     if (productForm) productForm.reset();
+    galleryManager?.reset();
     const idInput = document.getElementById('product-id');
     if (idInput) idInput.value = '';
     setSubmitButtonText('Registrar producto <span>&rarr;</span>');
@@ -124,7 +128,8 @@ initFormController({
     }
     setSubmitButtonText('Registrar producto <span>&rarr;</span>');
   },
-  onReloadRate: fetchBcvRate
+  onReloadRate: fetchBcvRate,
+  galleryManager
 });
 
 initImageUploader({
@@ -185,20 +190,26 @@ productList.addEventListener('click', async (event) => {
   if (editButton) {
     const product = getProducts().find((item) => String(item.id) === String(editButton.dataset.editProduct));
     if (!product) return;
+    const detal = product.precioDetal ?? product.detal ?? '';
+    const mayor = product.precioMayor ?? product.mayor ?? '';
+    const codigoBarras = product.codigoBarras ?? product.codigo ?? '';
+    const tasa = Number(product.tasaCambio) || 0;
     document.getElementById('product-id').value = product.id;
     document.getElementById('product-description').value = product.name || '';
+    document.getElementById('product-codigo').value = product.codigo || '';
     document.getElementById('product-categoria').value = product.category || 'variados';
-    document.getElementById('product-precioDetal').value = product.precioDetal || '';
-    document.getElementById('product-precioMayor').value = product.precioMayor || '';
-    const tasa = product.tasaCambio ? Number(product.tasaCambio) : 0;
+    document.getElementById('product-precioDetal').value = detal;
+    document.getElementById('product-precioMayor').value = mayor;
     document.getElementById('product-tasaCambio').value = tasa > 0 ? tasa : '';
-    document.getElementById('product-margen').value = product.margen !== undefined && product.margen !== null ? product.margen : '';
-    document.getElementById('product-precioDolar').value = product.precioDolar || '';
-    document.getElementById('product-precioDolarTienda').value = product.precioDolarTienda || '';
+    document.getElementById('product-margen').value = product.margen ?? '';
+    document.getElementById('product-precioDolar').value = product.precioDolar ?? '';
+    document.getElementById('product-precioDolarTienda').value = product.precioDolarTienda ?? '';
     document.getElementById('product-marca').value = product.marca || '';
     document.getElementById('product-origen').value = product.origen || '';
-    document.getElementById('product-codigoBarras').value = product.codigoBarras || '';
-    document.getElementById('product-image').value = product.image || '';
+    document.getElementById('product-codigoBarras').value = codigoBarras;
+    const galleryUrls = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+    document.getElementById('product-image').value = product.image || galleryUrls[0] || '';
+    galleryManager?.setUrls(galleryUrls);
     recalculatePrices();
     if (tasa <= 0) fetchBcvRate();
     setSubmitButtonText('Guardar cambios <span>✓</span>');

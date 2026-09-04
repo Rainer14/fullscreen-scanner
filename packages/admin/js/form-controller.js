@@ -34,7 +34,7 @@ export function recalculatePrices() {
   if (tiendaEl) tiendaEl.value = tienda ? tienda.toFixed(2) : '';
 }
 
-export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadRate }) {
+export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadRate, galleryManager }) {
   const form = document.getElementById('product-form');
   const scanBtn = document.getElementById('btn-scan');
   const submitBtn = document.getElementById('product-submit');
@@ -114,6 +114,17 @@ export function initFormController({ onSubmit, onFormReset, onSuccess, onReloadR
       }
       formData[backendKey] = value;
     });
+
+    const galleryUrls = galleryManager?.getUrls ? galleryManager.getUrls() : [];
+    const mainImage = formData.imagen || '';
+    const gallery = galleryUrls.filter(Boolean);
+    if (mainImage && !gallery.some((url) => url === mainImage)) {
+      gallery.unshift(mainImage);
+    }
+    if (gallery.length) {
+      formData.galeria = gallery;
+      if (!formData.imagen) formData.imagen = gallery[0];
+    }
 
     if (submitBtn) submitBtn.disabled = true;
 

@@ -40,8 +40,46 @@ export function renderProductDetail(products, productId) {
   renderPdpRelated(products, product);
 }
 
+let currentGalleryImages = [];
+let currentGalleryIndex = 0;
+
+function showGalleryImage() {
+  const mainImg = document.getElementById('pdp-main-img');
+  const activeImg = currentGalleryImages[currentGalleryIndex];
+  if (!mainImg || !activeImg) return;
+  mainImg.src = activeImg;
+  mainImg.alt = '';
+  document.querySelectorAll('.pdp-thumb').forEach((thumb) => {
+    thumb.classList.toggle('active', String(thumb.dataset.index) === String(currentGalleryIndex));
+  });
+  setCarouselButtons();
+}
+
+function setCarouselButtons() {
+  const prev = document.getElementById('pdp-carousel-prev');
+  const next = document.getElementById('pdp-carousel-next');
+  const hasMultiple = currentGalleryImages.length > 1;
+  if (prev) prev.disabled = !hasMultiple;
+  if (next) next.disabled = !hasMultiple;
+}
+
+function goToImage(index) {
+  if (!currentGalleryImages.length) return;
+  currentGalleryIndex = (index + currentGalleryImages.length) % currentGalleryImages.length;
+  showGalleryImage();
+}
+
+function initCarousel() {
+  const prev = document.getElementById('pdp-carousel-prev');
+  const next = document.getElementById('pdp-carousel-next');
+  prev?.addEventListener('click', () => goToImage(currentGalleryIndex - 1));
+  next?.addEventListener('click', () => goToImage(currentGalleryIndex + 1));
+}
+
 function renderPdpGallery(product) {
   const images = (product.images && product.images.length ? product.images : [product.image]).filter(Boolean);
+  currentGalleryImages = images;
+  currentGalleryIndex = 0;
   const mainImg = document.getElementById('pdp-main-img');
   mainImg.src = images[0];
   mainImg.alt = product.name;
@@ -51,9 +89,7 @@ function renderPdpGallery(product) {
     thumbs.innerHTML = images.map((img, i) => `<button class="pdp-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" style="background-image:url('${img}')" role="button" aria-label="Ver imagen ${i + 1}"></button>`).join('');
     thumbs.querySelectorAll('.pdp-thumb').forEach((thumb) => {
       thumb.addEventListener('click', () => {
-        mainImg.src = images[thumb.dataset.index];
-        thumbs.querySelectorAll('.pdp-thumb').forEach((t) => t.classList.remove('active'));
-        thumb.classList.add('active');
+        goToImage(Number(thumb.dataset.index));
       });
     });
     thumbs.hidden = false;
@@ -61,6 +97,7 @@ function renderPdpGallery(product) {
     thumbs.innerHTML = '';
     thumbs.hidden = true;
   }
+  setCarouselButtons();
 }
 
 function renderPdpColors(product) {
@@ -185,6 +222,7 @@ function computeContentScores(product, allProducts, factors) {
 }
 
 export function initPdp() {
+  initCarousel();
   document.querySelectorAll('.pdp-section-header').forEach((header) => {
     header.addEventListener('click', () => {
       const body = header.nextElementSibling;

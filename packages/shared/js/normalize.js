@@ -20,6 +20,7 @@ export function normalizeApiProduct(item) {
   const label = pick('label', 'etiqueta', 'badge') ?? 'Nuevo';
   const marca = pick('marca', 'brand') ?? '';
   const codigo = pick('codigo', 'código', 'code', 'codigoInterno', 'internalCode') ?? '';
+  const codigoBarras = pick('codigoBarras', 'codigo_barras', 'barcode', 'ean', 'upc') ?? '';
   const origen = pick('origen', 'origin', 'paisOrigen', 'paísOrigen') ?? '';
   const description = pick('description', 'descripcion', 'detalle', 'detal') ?? '';
   const materials = pick('materials', 'materiales', 'composition') ?? '';
@@ -29,5 +30,5 @@ export function normalizeApiProduct(item) {
   const sizes = Array.isArray(pick('sizes', 'tallas', 'talles')) ? pick('sizes', 'tallas', 'talles') : [];
   const rawImages = pick('images', 'fotos', 'gallery', 'imagenes');
   const images = Array.isArray(rawImages) ? rawImages.filter(Boolean) : [];
-  return { id, name, category, price, precioDolar, tasaCambio, margen, precioDolarTienda, image: image || '', label, detal, mayor, marca, codigo, origen, description, materials, care, colors, sizes, images };
+  return { id, name, category, price, precioDolar, tasaCambio, margen, precioDolarTienda, image: image || '', label, detal, mayor, marca, codigo, codigoBarras, origen, description, materials, care, colors, sizes, images };
 }

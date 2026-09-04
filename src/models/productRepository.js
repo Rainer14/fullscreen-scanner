@@ -64,6 +64,20 @@ function parseJson(value, fallback) {
   }
 }
 
+// La imagen principal (columna `imagen`) debe ser siempre parte de la galería.
+// Si quedó solo en `imagen` (p. ej. datos creados antes de la galería, o un
+// guardado donde la galería y la imagen principal no estaban sincronizadas),
+// se antepone a la lista para que la tienda siempre la muestre.
+function buildImages(row) {
+  const gallery = Array.isArray(parseJson(row.galeria, [])) ? parseJson(row.galeria, []) : [];
+  const mainImage = row.imagen || '';
+  const normalized = gallery.map((img) => String(img ?? '')).filter(Boolean);
+  if (mainImage && !normalized.some((img) => String(img) === String(mainImage))) {
+    normalized.unshift(mainImage);
+  }
+  return normalized;
+}
+
 function fromRow(row) {
   if (!row) return null;
   return {
@@ -92,7 +106,7 @@ function fromRow(row) {
     care: row.cuidado || '',
     colors: parseJson(row.colores, []),
     sizes: parseJson(row.tallas, []),
-    images: parseJson(row.galeria, [])
+    images: buildImages(row)
   };
 }
 
